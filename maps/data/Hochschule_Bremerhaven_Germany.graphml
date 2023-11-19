@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd"><key id="d12" for="edge" attr.name="geometry" attr.type="string"/>
+<key id="d11" for="edge" attr.name="length" attr.type="string"/>
+<key id="d10" for="edge" attr.name="reversed" attr.type="string"/>
+<key id="d9" for="edge" attr.name="oneway" attr.type="string"/>
+<key id="d8" for="edge" attr.name="highway" attr.type="string"/>
+<key id="d7" for="edge" attr.name="osmid" attr.type="string"/>
+<key id="d6" for="node" attr.name="street_count" attr.type="string"/>
+<key id="d5" for="node" attr.name="x" attr.type="string"/>
+<key id="d4" for="node" attr.name="y" attr.type="string"/>
+<key id="d3" for="graph" attr.name="simplified" attr.type="string"/>
+<key id="d2" for="graph" attr.name="crs" attr.type="string"/>
+<key id="d1" for="graph" attr.name="created_with" attr.type="string"/>
+<key id="d0" for="graph" attr.name="created_date" attr.type="string"/>
+<graph edgedefault="directed"><data key="d0">2023-11-19 19:25:19</data>
+<data key="d1">OSMnx 1.7.1</data>
+<data key="d2">epsg:4326</data>
+<data key="d3">True</data>
+<node id="2616329393">
+  <data key="d4">53.5394825</data>
+  <data key="d5">8.5825691</data>
+  <data key="d6">1</data>
+</node>
+<node id="8944832895">
+  <data key="d4">53.5397526</data>
+  <data key="d5">8.582638</data>
+  <data key="d6">1</data>
+</node>
+<edge source="2616329393" target="8944832895" id="0">
+  <data key="d7">[966810582, 966810583]</data>
+  <data key="d8">pedestrian</data>
+  <data key="d9">False</data>
+  <data key="d10">True</data>
+  <data key="d11">46.83</data>
+  <data key="d12">LINESTRING (8.5825691 53.5394825, 8.5824077 53.5395272, 8.5823835 53.539669, 8.582638 53.5397526)</data>
+</edge>
+<edge source="8944832895" target="2616329393" id="0">
+  <data key="d7">[966810582, 966810583]</data>
+  <data key="d8">pedestrian</data>
+  <data key="d9">False</data>
+  <data key="d10">False</data>
+  <data key="d11">46.83</data>
+  <data key="d12">LINESTRING (8.582638 53.5397526, 8.5823835 53.539669, 8.5824077 53.5395272, 8.5825691 53.5394825)</data>
+</edge>
+</graph></graphml>
