@@ -21,23 +21,23 @@ class create_map_network():
         self._origin = origin
         self._destination = destination
 
-    def create_street_network(STREET_GRAPH_PLACE, type):
-        STREETGRAPH_FILENAME = STREET_GRAPH_PLACE.replace,(' ','').replace(',','')+ '.graphml'
+    def create_street_network(self):
+        STREETGRAPH_FILENAME = self._palce.replace(',','')+'.graphml'
         STREETGRAPH_FILEPATH = ".//data//"+STREETGRAPH_FILENAME
         FORCE_CREATE = False
         #This Checks if the Streetnetwork File exists(or creation is overwritten using FORCE_CREATE)
         if (not os.path.isfile(STREETGRAPH_FILEPATH)) or FORCE_CREATE:
             #There are many different ways to create the Network Graph. Please follow osmnx documentation for more details
-            area_graph = ox.graph_from_place(STREET_GRAPH_PLACE, network_type = type)
+            area_graph = ox.graph_from_place(self._palce, network_type = self._network_type)
             ox.save_graphml(area_graph, STREETGRAPH_FILEPATH)
             #This will create streetnetwork.graphml equiv size = 277M
         return STREETGRAPH_FILEPATH
 
     def create_area_graph(self):
-        return ox.load_graphml(self.create_street_network(self._palce))
+        return ox.load_graphml(self.create_street_network())
     
     def plot_graph_map(self):
-        self._graph = self.create_area_graph()
+        
         ec = ox.plot.get_edge_colors_by_sttr(self._graph, attr="length", num_bins=5)
 
         #otherwise, when num_bins is None (default), linearly map one color to each node/edge by value
@@ -54,8 +54,8 @@ class create_map_network():
         return route_point1_point2
     
     def plot_graph_shortest_route(self):
-        return ox.plot_graph_route(self._graph, self.find_shortest_path_between_two_points(self), orig_dest_size = 0, node_size=0)
+        return ox.plot_graph_route(self._graph, self.find_shortest_path_between_two_points(), orig_dest_size = 0, node_size=0)
 
     def cartesian_coordinates(self):
-        return (self.find_shortest_path_between_two_points(self)['lat'], self.find_shortest_path_between_two_points(self)['lon'])
+        return (self.find_shortest_path_between_two_points()['lat'], self.find_shortest_path_between_two_points()['lon'])
     
