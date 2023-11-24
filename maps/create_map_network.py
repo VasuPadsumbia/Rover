@@ -5,6 +5,7 @@ import os
 
 class create_map_network():
     def __init__(self, STREET_GRAPH_PLACE, type, origin, destination) -> None:
+        
         """_summary_
 
         Args:
@@ -22,6 +23,7 @@ class create_map_network():
         self._destination = destination
 
     def create_street_network(self):
+        
         """
         Generate graphml file for further transfer to GUI
         Location name formate shall be like for example STREET_GRAPH_PLACE = Bremerhaven,Germany
@@ -40,6 +42,7 @@ class create_map_network():
         return STREETGRAPH_FILEPATH
 
     def create_area_graph(self):
+        
         """
         Load graph from graphml file that we created in create_street_network() function
         
@@ -47,6 +50,7 @@ class create_map_network():
         return ox.load_graphml(self.create_street_network())
     
     def plot_graph_map(self):
+        
         """
         Generating graph map and plotting the graph of the desired location
         
@@ -61,6 +65,7 @@ class create_map_network():
 
 
     def find_shortest_path_between_two_points(self):
+        
         """
         
         This function finds the best route for the desired destination. 
@@ -74,6 +79,7 @@ class create_map_network():
         
 
     def cartesian_coordinates(self):
+        
         """
 
         The data obtained from the find_shortest_path_between_two_points() function is in node ID form from OSMnx 
@@ -89,6 +95,7 @@ class create_map_network():
         return coordinates
     
     def plot_graph_shortest_route(self):
+        
         """
 
         This function develops the graph of shortest route and imposes on the original map of the location

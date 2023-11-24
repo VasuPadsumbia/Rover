@@ -1,0 +1,16 @@
+{
+	"version": "1.0.0",
+	"Debug": true,
+	"dgps":
+		{
+            "IP_add": "195.37.48.193",
+            "port": 55555
+		},
+	"serial":
+		{
+			"bus": 0,
+			"device": 0,
+			"freq": 500000,
+			"mode": 0
+		}
+}
