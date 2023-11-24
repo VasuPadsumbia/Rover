@@ -30,7 +30,7 @@ class create_map_network():
         and shall be saved as Bremerhaven_Germany.graphml
         
         """
-        STREETGRAPH_FILENAME = self._palce.replace(' ','_').replace(',','_')+'.graphml'
+        STREETGRAPH_FILENAME = self._palce.replace(' ','_').replace(',','_')+'.png'
         STREETGRAPH_FILEPATH = ".//data//"+STREETGRAPH_FILENAME
         FORCE_CREATE = False
         #This Checks if the Streetnetwork File exists(or creation is overwritten using FORCE_CREATE)
@@ -103,3 +103,12 @@ class create_map_network():
         """
         return ox.plot_graph_route(self._graph, self.find_shortest_path_between_two_points(), orig_dest_size = 0, node_size=0)
 
+    def log(self):
+        data_JSON =  {
+	        "tow": self.tow,
+	        "lat": self.lat,
+	        "lon": self.lon,
+	        "height": self.height,
+        }
+        with open("map_coordinates.json", "w") as write_file:
+            json.dump(data_JSON, write_file)
