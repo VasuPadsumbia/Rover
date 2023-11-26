@@ -14,12 +14,14 @@ class create_map_network():
             graph : class variable created for graph of the aabove map.
             origin : Origin coordinates of the rover from piksi (Latitude,Longitude).
             destination : desired target location to which the rover need to go.
+            nodes = number of turnes for rover to travel till destination
         """
         self._palce = STREET_GRAPH_PLACE
         self._network_type = type
         self._graph = self.create_area_graph()
         self._origin = origin
         self._destination = destination
+        self.nodes = 0
 
     def create_street_network(self):
         
@@ -98,7 +100,8 @@ class create_map_network():
         coordinates=[]
         g = self._graph
         node_id = self.find_shortest_path_between_two_points()
-        for x in range(len(node_id)):
+        self.nodes = len(node_id)
+        for x in range(self.nodes):
             coordinates.append(g.nodes[node_id[x]]['y'])
             coordinates.append(g.nodes[node_id[x]]['x'])
         return coordinates
@@ -113,11 +116,11 @@ class create_map_network():
         return ox.plot_graph_route(self._graph, self.find_shortest_path_between_two_points(), orig_dest_size = 0, node_size=0)
 
     def log(self):
-        data_JSON =  {
-	        "tow": self.tow,
-	        "lat": self.lat,
-	        "lon": self.lon,
-	        "height": self.height,
-        }
+        data_JSON = [{
+            f"Point {i}": {
+                        "Latitude": coordinates[i]['y'],
+                        "Longitude": coordinates[i]['x']
+                        } 
+                } for i, value in enumerate(one_dimensional_array)]
         with open("map_coordinates.json", "w") as write_file:
             json.dump(data_JSON, write_file)

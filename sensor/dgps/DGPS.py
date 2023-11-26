@@ -136,5 +136,5 @@ class connect_pksi_dgps():
             "velocity_east": self.v_e,             
             "velocity_down": self.v_d,         #wn = 0
         }
-        with open("maps/map_coordinates.json", "w") as write_file:
+        with open("maps/gps_data.json", "w") as write_file:
             json.dump(data_JSON, write_file)
