@@ -1,7 +1,9 @@
 import osmnx as ox
 import networkx as nx
 import matplotlib.pyplot as plt
-from maps.create_map_network import create_map_network
+from create_map_network import create_map_network
+import sys
+sys.path.append(".")
 from sensor.dgps.DGPS import *
 import json
 

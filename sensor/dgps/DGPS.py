@@ -1,11 +1,10 @@
-import os, sys, argparse
-sys.path.append("../../")
+import os, argparse
 from sbp.client.drivers.network_drivers import TCPDriver
 from sbp.client import Handler, Framer
 from sbp.navigation import *
 from json.decoder import JSONDecodeError
 import json
-from helper import *
+
 
 class Singleton_meta(type):
     _instances = {}
