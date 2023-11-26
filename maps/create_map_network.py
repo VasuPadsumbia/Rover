@@ -1,7 +1,7 @@
 import osmnx as ox
 import networkx as nx
 import os, sys, argparse
-sys.path.append("../../")
+import json
 
 class create_map_network():
     def __init__(self, STREET_GRAPH_PLACE, type, origin, destination) -> None:
@@ -9,12 +9,11 @@ class create_map_network():
         """_summary_
 
         Args:
-            point_cloud_polar (list[any): Point Cloud.
-            position_map (Map): Map of environment without forbidden areas.
-            path_map (Map): Map of environment with forbidden areas.
-            target (MetricPosition): Target position.
-            stages (int, optional): Convolution stages. Defaults to 4.
-            threshold (float, optional): Threshold for convolution. Defaults to 0.7.
+            place (city,country): place of which you want to develop strret network.
+            network type (Map): Type of network includes "walk", "drive", "cycle".
+            graph : class variable created for graph of the aabove map.
+            origin : Origin coordinates of the rover from piksi (Latitude,Longitude).
+            destination : desired target location to which the rover need to go.
         """
         self._palce = STREET_GRAPH_PLACE
         self._network_type = type
@@ -30,8 +29,18 @@ class create_map_network():
         and shall be saved as Bremerhaven_Germany.graphml
         
         """
-        STREETGRAPH_FILENAME = self._palce.replace(' ','_').replace(',','_')+'.png'
-        STREETGRAPH_FILEPATH = ".//data//"+STREETGRAPH_FILENAME
+        # Get the absolute path of the current working directory
+        current_directory = os.getcwd()
+
+        # Specify the relative path to the data folder
+        DATA_FOLDER = os.path.join(current_directory, "data")
+
+        # Create the "data" folder if it doesn't exist
+        if not os.path.exists(DATA_FOLDER):
+            os.makedirs(DATA_FOLDER)
+
+        STREETGRAPH_FILENAME = self._palce.replace(' ','_').replace(',','_')+'.graphml'
+        STREETGRAPH_FILEPATH = os.path.join(DATA_FOLDER, STREETGRAPH_FILENAME)
         FORCE_CREATE = False
         #This Checks if the Streetnetwork File exists(or creation is overwritten using FORCE_CREATE)
         if (not os.path.isfile(STREETGRAPH_FILEPATH)) or FORCE_CREATE:

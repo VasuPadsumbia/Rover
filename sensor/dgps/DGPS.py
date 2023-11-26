@@ -37,8 +37,9 @@ class connect_pksi_dgps():
         self.wn = 0
         self.tow = 0
         
-        self.config_path = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../.."))}/Configure.json'
-        #self.config_path = "Configure.json"
+        self.config_path = f'{os.path.abspath(os.path.join
+                                (os.path.dirname(__file__),"../.."))}/Configure.json'
+        
 
         try:
             with open(self.config_path, "r") as config_file:
@@ -50,7 +51,6 @@ class connect_pksi_dgps():
         except JSONDecodeError as e:
             print("Failed to read JSON, return code %d\n", e)
 
-
     def get_data(self):
         iteration = 0
         ''' Creates Piksi connection'''
@@ -60,10 +60,10 @@ class connect_pksi_dgps():
         
                 ''' Getting data'''
                 try:
-                    #msg_list = [SBP_MSG_BASELINE_NED, SBP_MSG_POS_LLH,
-                    #                SBP_MSG_VEL_NED, SBP_MSG_GPS_TIME]
+                    msg_list = [SBP_MSG_BASELINE_NED, SBP_MSG_POS_LLH,
+                                    SBP_MSG_VEL_NED, SBP_MSG_GPS_TIME]
                     
-                    for msg, metadata in source.filter(SBP_MSG_POS_LLH):
+                    for msg, metadata in source.filter(msg_list):
                             iteration = 1 + iteration
                             print("he position solution message reports absolute Earth Centered Earth Fixed (ECEF)" 
                                   "coordinates and the status (single point vs pseudo-absolute RTK) of"
@@ -73,7 +73,7 @@ class connect_pksi_dgps():
                                    "baseline vector.")
                             print(f'Data Recieving from piksi at IP {msg.sender}')
                             print(f'accuracy of data {msg.h_accuracy}')
-                            print("Latitude: %.4f, Longitude: %.4f" % (msg.lat , msg.lon ))
+                            #print("Latitude: %.4f, Longitude: %.4f" % (msg.lat , msg.lon ))
 
                             # LLH position in deg-deg-m
                             if msg.msg_type == 522:
@@ -103,7 +103,7 @@ class connect_pksi_dgps():
                                 pass
                             
                             self.log()
-                            #print(self.whole_string())
+                            print(self.whole_string())
                             # f.write(line)
                             # f.write('\n')
 
@@ -127,6 +127,14 @@ class connect_pksi_dgps():
 	        "lat": self.lat,
 	        "lon": self.lon,
 	        "height": self.height,
+            "flag": self.flag,
+            "North": self.n,
+            "East": self.e,             
+            "Down": self.d,             
+            "Height_base": self.h,
+            "velocity_north": self.v_n,
+            "velocity_east": self.v_e,             
+            "velocity_down": self.v_d,         #wn = 0
         }
-        with open("map_coordinates.json", "w") as write_file:
+        with open("maps/map_coordinates.json", "w") as write_file:
             json.dump(data_JSON, write_file)
