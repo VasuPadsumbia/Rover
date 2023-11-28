@@ -22,6 +22,7 @@ class create_map_network():
         self._origin = origin
         self._destination = destination
         self.nodes = 0
+        self.coordinates = []
 
     def create_street_network(self):
         
@@ -97,14 +98,14 @@ class create_map_network():
         and so to convert those data to latitudes and longitudes we have to get the status from OSMnx analysis.
         
         """
-        coordinates=[]
+        
         g = self._graph
         node_id = self.find_shortest_path_between_two_points()
         self.nodes = len(node_id)
         for x in range(self.nodes):
-            coordinates.append(g.nodes[node_id[x]]['y'])
-            coordinates.append(g.nodes[node_id[x]]['x'])
-        return coordinates
+            self.coordinates.append(g.nodes[node_id[x]]['y'])
+            self.coordinates.append(g.nodes[node_id[x]]['x'])
+        return self.coordinates
     
     def plot_graph_shortest_route(self):
         
@@ -118,9 +119,9 @@ class create_map_network():
     def log(self):
         data_JSON = [{
             f"Point {i}": {
-                        "Latitude": coordinates[i]['y'],
-                        "Longitude": coordinates[i]['x']
+                        "Latitude": self.coordinates[i],
+                        "Longitude": self.coordinates[i+1]
                         } 
-                } for i, value in enumerate(one_dimensional_array)]
+                } for i, value in enumerate(len(self.coordinates))]
         with open("map_coordinates.json", "w") as write_file:
             json.dump(data_JSON, write_file)
