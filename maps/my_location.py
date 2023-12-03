@@ -1,7 +1,7 @@
 import osmnx as ox
 import networkx as nx
 import matplotlib.pyplot as plt
-from create_map_network import create_map_network
+from create_map_network import create_map
 #from sensor.dgps.DGPS import *
 import json
 import os
@@ -30,11 +30,11 @@ except KeyboardInterrupt:
     pass
 """
 
-map = create_map_network('Bremerhaven, Germany', 'walk', centre_point, Destination)
+map = create_map('Bremerhaven, Germany', 'walk', centre_point, Destination)
 
 print(f'create street network(): {map.create_street_network()}')
 print(f'create area graph(): {map.create_area_graph()}')
 print(f'find shortest path between two points(): {map.find_shortest_path_between_two_points()}')
 print(f'cartesian coordinates(): {map.cartesian_coordinates()}')
-print(f'plot graph shortest route(): {map.plot_graph_shortest_route()}')
+#print(f'plot graph shortest route(): {map.plot_graph_shortest_route()}')
 print(f'logging coordinates(): {map.log()}')

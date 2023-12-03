@@ -3,7 +3,7 @@ import networkx as nx
 import os, sys, argparse
 import json
 
-class create_map_network():
+class create_map():
     def __init__(self, STREET_GRAPH_PLACE, type, origin, destination) -> None:
         
         """_summary_
@@ -117,11 +117,12 @@ class create_map_network():
         return ox.plot_graph_route(self._graph, self.find_shortest_path_between_two_points(), orig_dest_size = 0, node_size=0)
 
     def log(self):
+        #location = [{'Point': i // 2 + 1 'latitude': self.coordinates[i], 'longitude': self.coordinates[i+1]}]for i in range(0, len(self.cordinates), 2)
         data_JSON = [{
-            f"Point {i}": {
+            f"Point {i // 2+1}": {
                         "Latitude": self.coordinates[i],
                         "Longitude": self.coordinates[i+1]
                         } 
-                } for i, value in range(len(self.coordinates))]
+                } for i, value in range(0,len(self.coordinates),2)]
         with open("map_coordinates.json", "w") as write_file:
             json.dump(data_JSON, write_file)
