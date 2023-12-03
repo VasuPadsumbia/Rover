@@ -122,6 +122,6 @@ class create_map_network():
                         "Latitude": self.coordinates[i],
                         "Longitude": self.coordinates[i+1]
                         } 
-                } for i, value in enumerate(len(self.coordinates))]
+                } for i, value in range(len(self.coordinates))]
         with open("map_coordinates.json", "w") as write_file:
             json.dump(data_JSON, write_file)

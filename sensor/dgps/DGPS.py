@@ -37,8 +37,7 @@ class connect_pksi_dgps():
         self.wn = 0
         self.tow = 0
         
-        self.config_path = f'{os.path.abspath(os.path.join
-                                (os.path.dirname(__file__),"../.."))}/Configure.json'
+        self.config_path = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../.."))}/Configure.json'
         
 
         try:

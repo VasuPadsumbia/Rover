@@ -2,14 +2,12 @@ import osmnx as ox
 import networkx as nx
 import matplotlib.pyplot as plt
 from create_map_network import create_map_network
-import sys
-sys.path.append(".")
-from sensor.dgps.DGPS import *
+#from sensor.dgps.DGPS import *
 import json
+import os
 
 
-
-config_path = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),""))}/map_coordinates.json'
+config_path = f'{os.path.abspath(os.path.dirname(__file__))}/map_coordinates.json'
 
 try:
     with open(config_path, "r") as config_file:
@@ -32,7 +30,7 @@ except KeyboardInterrupt:
     pass
 """
 
-map = create_map_network('Bremerhaven,Germany', 'walk', centre_point, Destination)
+map = create_map_network('Bremerhaven, Germany', 'walk', centre_point, Destination)
 
 print(f'create street network(): {map.create_street_network()}')
 print(f'create area graph(): {map.create_area_graph()}')
