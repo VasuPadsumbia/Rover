@@ -119,10 +119,11 @@ class create_map():
     def log(self):
         #location = [{'Point': i // 2 + 1 'latitude': self.coordinates[i], 'longitude': self.coordinates[i+1]}]for i in range(0, len(self.cordinates), 2)
         data_JSON = [{
-            f"Point {i // 2+1}": {
+            f"Point {i}": {
                         "Latitude": self.coordinates[i],
                         "Longitude": self.coordinates[i+1]
                         } 
-                } for i, value in range(0,len(self.coordinates),2)]
+                } for i in range(len(self.coordinates) - 1 )]
+        print(data_JSON)
         with open("map_coordinates.json", "w") as write_file:
             json.dump(data_JSON, write_file)
