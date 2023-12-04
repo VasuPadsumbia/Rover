@@ -127,6 +127,7 @@ class create_map():
                     } for i in range(0,len(self.coordinates),2)]
             print(data_JSON)
             path = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),""))}/map_coordinates.json'
+            #self.coordinates[['x', 'y', 'elevation']].to_json(path, orient='records', lines=True)
             with open(path, "w") as write_file:
                 json.dump(data_JSON, write_file)
 
