@@ -5,10 +5,20 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Module",
+            "name": "Python: Your Script Name",
             "type": "python",
             "request": "launch",
-            "module": "..sensor.dgps.GPS",
+            "program": "${workspaceFolder}/maps/my_location.py",
+            "cwd": "${workspaceFolder}/maps",
+            "debugOptions": ["RedirectOutput"],
+            "stopOnEntry": false,
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "env": {},
+            "envFile": "${workspaceFolder}/.env",
+            "runtimeArgs": ["-c", "import sys; print(sys.path)"],
+            "console": "internalConsole",
+            "stopOnEntry": false
             }
     ]
 }
