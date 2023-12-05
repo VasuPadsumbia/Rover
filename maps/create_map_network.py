@@ -3,8 +3,8 @@ import networkx as nx
 import os, sys, argparse
 import json
 
-class create_map():
-    def __init__(self, STREET_GRAPH_PLACE, type, origin, destination) -> None:
+class MapHandler():
+    def __init__(self, type, destination, place_name=None, coordinates=None) -> None:
         
         """_summary_
 
@@ -16,15 +16,21 @@ class create_map():
             destination : desired target location to which the rover need to go.
             nodes = number of turnes for rover to travel till destination
         """
-        self._palce = STREET_GRAPH_PLACE
         self._network_type = type
-        self._graph = self.create_area_graph()
-        self._origin = origin
         self._destination = destination
         self.nodes = 0
         self.coordinates = []
+        self.initial_location = coordinates
 
-    def create_street_network(self):
+        if coordinates:
+            self._path_graphml = self.create_street_network_point(coordinates)
+        elif place_name:
+            self._path_graphml = self.create_street_network_place(place_name)
+
+
+        self._graph = self.create_area_graph()
+
+    def create_street_network_place(self, place_name):
         
         """
         Generate graphml file for further transfer to GUI
@@ -42,24 +48,69 @@ class create_map():
         if not os.path.exists(DATA_FOLDER):
             os.makedirs(DATA_FOLDER)
 
-        STREETGRAPH_FILENAME = self._palce.replace(' ','_').replace(',','_')+'.graphml'
-        STREETGRAPH_FILEPATH = os.path.join(DATA_FOLDER, STREETGRAPH_FILENAME)
+        if isinstance(place_name, str):
+            # If place_info is a string, treat it as a location name
+            STREETGRAPH_FILENAME = place_name.replace(' ','_').replace(',','_')+'.graphml'
+        elif isinstance(place_name, tuple):
+            # If place_info is a tuple, treat it as coordinates
+            STREETGRAPH_FILENAME = f'{place_name[0]}_{place_name[1]}'.replace(' ','_').replace(',','')+'.graphml'
+        else:
+            raise ValueError("Invalid format for place_info")
+        
+        #STREETGRAPH_FILENAME = place_name.replace(' ','_').replace(',','_')+'.graphml'
+        
+        path_graphml = os.path.join(DATA_FOLDER, STREETGRAPH_FILENAME)
         FORCE_CREATE = False
         #This Checks if the Streetnetwork File exists(or creation is overwritten using FORCE_CREATE)
-        if (not os.path.isfile(STREETGRAPH_FILEPATH)) or FORCE_CREATE:
+        if (not os.path.isfile(path_graphml)) or FORCE_CREATE:
             #There are many different ways to create the Network Graph. Please follow osmnx documentation for more details
-            area_graph = ox.graph_from_place(self._palce, network_type = self._network_type)
-            ox.save_graphml(area_graph, STREETGRAPH_FILEPATH)
+            area_graph = ox.graph_from_place(place_name, network_type = self._network_type)
+            ox.save_graphml(area_graph, path_graphml)
             #This will create streetnetwork.graphml equiv size = 277M
-        return STREETGRAPH_FILEPATH
+        return path_graphml
+        
+    
+    def create_street_network_point(self, coordinates):
+        
+        """
+        Generate graphml file for further transfer to GUI
+        Location name formate shall be like for example STREET_GRAPH_PLACE = Bremerhaven,Germany
+        and shall be saved as Bremerhaven_Germany.graphml
+        
+        """
+        # Get the absolute path of the current working directory
+        current_directory = os.getcwd()
 
+        # Specify the relative path to the data folder
+        DATA_FOLDER = os.path.join(current_directory, "data")
+
+        # Create the "data" folder if it doesn't exist
+        if not os.path.exists(DATA_FOLDER):
+            os.makedirs(DATA_FOLDER)
+
+        #STREETGRAPH_FILENAME = coordinates.replace(' ','_').replace(',','')+'.graphml'
+        STREETGRAPH_FILENAME = f'{coordinates[0]}_{coordinates[1]}'.replace(' ','_').replace(',','')+'.graphml'
+
+        path_graphml = os.path.join(DATA_FOLDER, STREETGRAPH_FILENAME)
+        FORCE_CREATE = False
+        #This Checks if the Streetnetwork File exists(or creation is overwritten using FORCE_CREATE)
+        if (not os.path.isfile(path_graphml)) or FORCE_CREATE:
+            #There are many different ways to create the Network Graph. Please follow osmnx documentation for more details
+            area_graph = ox.graph_from_point(coordinates, network_type = self._network_type)
+            ox.save_graphml(area_graph, path_graphml)
+            #This will create streetnetwork.graphml equiv size = 277M
+        return  path_graphml
+    
     def create_area_graph(self):
         
         """
-        Load graph from graphml file that we created in create_street_network() function
+        Load graph from graphml file that we created in create_street_network_() function
         
         """
-        return ox.load_graphml(self.create_street_network())
+        if self._path_graphml:
+            return ox.load_graphml(self._path_graphml)
+        else:
+            raise ValueError("No graph data available. Please create a street network first.")
     
     def plot_graph_map(self):
         
@@ -71,9 +122,13 @@ class create_map():
 
         #otherwise, when num_bins is None (default), linearly map one color to each node/edge by value
         #ec = ox.plot.get_edge_colors_by_sttr(self._graph, attr="length")
+                
+        # Plot the street network
+        fig, ax = ox.plot_graph(self._graph, node_size=5, edge_color=ec, bgcolor="k", show=False)
 
-        #plot the graph with colored edges
-        fig, ax = ox.plot_graph(self._graph, node_size=5, edge_color = ec, bgcolor="k")
+        # Plot buildings and other surroundings
+        ox.plot_footprints(self._graph, ax=ax, color='orange', alpha=0.7, show=False)
+
 
 
     def find_shortest_path_between_two_points(self):
@@ -84,7 +139,7 @@ class create_map():
         Please specify the type of network depending on the ride
         
         """
-        node_point1 = ox.nearest_nodes(self._graph, self._origin[1], self._origin[0])
+        node_point1 = ox.nearest_nodes(self._graph, self.initial_location[1], self.initial_location[0])
         node_point2 = ox.nearest_nodes(self._graph, self._destination[1], self._destination[0])
         route_point1_point2 = ox.shortest_path(self._graph, node_point1, node_point2, weight=self._network_type)
         return route_point1_point2

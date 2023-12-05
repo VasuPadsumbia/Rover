@@ -1,18 +1,18 @@
 import osmnx as ox
 import networkx as nx
 import matplotlib.pyplot as plt
-from create_map_network import create_map
+from create_map_network import MapHandler
 import sys
-sys.path.append('/home/outdoor/Rover')
-from sensor.dgps.DGPS import *
+#sys.path.append('/home/outdoor/Rover')
+#from sensor.dgps.DGPS import *
 import json
 from json.decoder import JSONDecodeError
 import os
 
 
-config_path = f'{os.path.abspath(os.path.dirname(__file__))}/gps_.json'
+config_path = f'{os.path.abspath(os.path.dirname(__file__))}/gps_data.json'
 
-"""try:
+try:
     with open(config_path, "r") as config_file:
         data = json.load(config_file)
         lat = data['lat']
@@ -21,24 +21,22 @@ config_path = f'{os.path.abspath(os.path.dirname(__file__))}/gps_.json'
         
 except JSONDecodeError as e:
     print("Failed to read JSON, return code %d\n", e)
+
+
+centre_point = (lat, lon)
+Destination = (53.517991, 8.60)
 """
-
-#centre_point = (lat, lon)
-#Destination = (53.517991, 8.60)
-
 try:
     gps = connect_pksi_dgps()
     print(f'Getting Longitudenal and Latitude data: {gps.get_data()}')
 
 except KeyboardInterrupt:
     pass
+"""
 
-
-#map = create_map('Bremerhaven, Germany', 'walk', centre_point, Destination)
-
-#print(f'create street network(): {map.create_street_network()}')
-#print(f'create area graph(): {map.create_area_graph()}')
-#print(f'find shortest path between two points(): {map.find_shortest_path_between_two_points()}')
-#print(f'cartesian coordinates(): {map.cartesian_coordinates()}')
-##print(f'plot graph shortest route(): {map.plot_graph_shortest_route()}')
-#print(f'logging coordinates(): {map.log()}')
+map = MapHandler(type='walk', destination=Destination, place_name='Bremerhaven, Germany', coordinates=centre_point)
+print(f'create area graph(): {map.create_area_graph()}')
+print(f'find shortest path between two points(): {map.find_shortest_path_between_two_points()}')
+print(f'cartesian coordinates(): {map.cartesian_coordinates()}')
+print(f'plot graph shortest route(): {map.plot_graph_shortest_route()}')
+print(f'logging coordinates(): {map.log()}')
