@@ -3,7 +3,7 @@
 	"Debug": true,
 	"dgps":
 		{
-            "IP_add": "195.37.48.235",
+            "IP_add": "195.37.48.193",
             "port": 55555
 		},
 	"serial":

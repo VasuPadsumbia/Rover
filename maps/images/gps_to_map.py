@@ -11,7 +11,7 @@ def main():
     #ox.settings.use_cache=True# define the start and end locations in latlng
 
     # Open a connection to Piksi using TCP
-    with TCPDriver('195.37.48.235', 55555) as driver:
+    with TCPDriver('195.37.48.193', 55555) as driver:
         with Handler(Framer(driver.read, None, verbose=True)) as source:
             try:
                 for msg, metadata in source.filter(SBP_MSG_POS_LLH):

@@ -30,7 +30,7 @@ def confirm_write(source, section, setting, value):
     retries = 5
     while (attempts < retries):
         attempts += 1
-        actual_value = read(source, section, setting)
+        actual_value = read(source, section, str(setting).encode('utf-8')).decode('utf-8')
         if value != actual_value:
             # value doesn't match, but could be a rounding issue
             try:
@@ -79,8 +79,10 @@ def write(source, section, setting, value):
 
         source.add_callback(cb, SBP_MSG_SETTINGS_WRITE_RESP)
 
-        source(MsgSettingsWrite(setting='{}\0{}\0{}\0'.format(section, setting,
-               value)))
+        setting_bytes = setting.encode('utf-8') + b'\x00'
+        source(MsgSettingsReadReq(setting='%s' % setting_bytes.decode('utf-8')))
+
+
         if confirm_write(source, section, setting, value):
             source.remove_callback(cb, SBP_MSG_SETTINGS_WRITE_RESP)
             break
@@ -178,8 +180,8 @@ if __name__ == "__main__":
         nargs=1,
         help='specify setting file to be written [default = \'default.ini\']')
     args = parser.parse_args()
-    
-    config_path = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../.."))}/Configure.json'
+
+    config_path = '{}{}'.format(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')), '/Configure.json')
 
     try:
         with open(config_path, "r") as config_file:
