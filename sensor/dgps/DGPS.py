@@ -71,7 +71,6 @@ class connect_pksi_dgps():
                                    "position solution using the base station position and the rover's RTK"
                                    "baseline vector.")
                             print(f'Data Recieving from piksi at IP {msg.sender}')
-                            print(f'accuracy of data {msg.h_accuracy}')
                             #print("Latitude: %.4f, Longitude: %.4f" % (msg.lat , msg.lon ))
 
                             # LLH position in deg-deg-m
