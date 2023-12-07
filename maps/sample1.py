@@ -1,50 +1,34 @@
 import osmnx as ox
-import networkx as nx
-import numpy as np
+import geopandas as gpd
+import folium
+from shapely.geometry import Point
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 
-# Define a central point (latitude, longitude)
-central_point = (53.540559, 8.5836)  # Example: New York City
+# Define a bounding box for the map
+north, south, east, west = 37.8, 37.75, -122.4, -122.45
 
-# Create a street network graph within a specified distance (in meters) from the central point
-G = ox.graph_from_point(central_point, dist=500, network_type="all", simplify=True)
+# Download street network data from OSM within the bounding box
+graph = ox.graph_from_bbox(north, south, east, west, network_type='all_private')
 
-# Extract node coordinates
-nodes, edges = ox.graph_to_gdfs(G)
+# Plot the street network
+ox.plot_graph(ox.project_graph(graph))
 
-# Generate random elevation data for demonstration purposes
-nodes['elevation'] = np.random.uniform(0, 100, len(nodes))
+# Identify and mark obstacles on the map
+# For demonstration purposes, let's assume obstacles are represented as points
+obstacle_data = {
+    'name': ['Obstacle1', 'Obstacle2', 'Obstacle3'],
+    'latitude': [37.777, 37.755, 37.770],
+    'longitude': [-122.415, -122.430, -122.405],
+}
 
-# Set the threshold for ground level (adjust as needed)
-ground_threshold = 10
+# Create a GeoDataFrame from the obstacle data
+obstacle_gdf = gpd.GeoDataFrame(
+    obstacle_data,
+    geometry=gpd.points_from_xy(obstacle_data['longitude'], obstacle_data['latitude'])
+)
 
-# Filter points for ground level only
-ground_points = nodes[nodes['elevation'] <= ground_threshold]
+# Plot the obstacles on the map
+obstacle_gdf.plot(marker='o', color='red', markersize=50, alpha=0.7)
 
-# Save point cloud data to a JSON file
-json_file_path = 'point_cloud_data.json'
-ground_points[['x', 'y', 'elevation']].to_json(json_file_path, orient='records', lines=True)
-
-print(f"Point cloud data saved to {json_file_path}")
-
-# Create a 3D scatter plot
-fig = plt.figure(figsize=(10, 10))
-ax = fig.add_subplot(111, projection='3d')
-scatter = ax.scatter(ground_points['x'], ground_points['y'], ground_points['elevation'], c=ground_points['elevation'], cmap='viridis', s=1)
-
-# Set axis limits
-ax.set_xlim(ground_points['x'].min(), ground_points['x'].max())
-ax.set_ylim(ground_points['y'].min(), ground_points['y'].max())
-ax.set_zlim(ground_points['elevation'].min(), ground_points['elevation'].max())
-
-# Set axis labels
-ax.set_xlabel('Longitude')
-ax.set_ylabel('Latitude')
-ax.set_zlabel('Elevation')
-
-# Add colorbar
-cbar = fig.colorbar(scatter, label='Elevation')
-
-plt.title('Point Cloud Visualization')
+# Display the map with obstacles
 plt.show()
