@@ -61,51 +61,51 @@ class connect_pksi_dgps():
                 try:
                     msg_list = [SBP_MSG_BASELINE_NED, SBP_MSG_POS_LLH,
                                     SBP_MSG_VEL_NED, SBP_MSG_GPS_TIME]
-                    
-                    for msg, metadata in source.filter(msg_list):
-                            iteration = 1 + iteration
-                            print("he position solution message reports absolute Earth Centered Earth Fixed (ECEF)" 
-                                  "coordinates and the status (single point vs pseudo-absolute RTK) of"
-                                   "the position solution. If the rover receiver knows the surveyed position of"
-                                   "the base station and has an RTK solution, this reports a pseudo-absolute"
-                                   "position solution using the base station position and the rover's RTK"
-                                   "baseline vector.")
-                            print(f'Data Recieving from piksi at IP {msg.sender}')
-                            #print("Latitude: %.4f, Longitude: %.4f" % (msg.lat , msg.lon ))
 
-                            # LLH position in deg-deg-m
+                    print("The position solution message reports absolute Earth Centered Earth Fixed (ECEF)" 
+                              "coordinates and the status (single point vs pseudo-absolute RTK) of"
+                               "the position solution. If the rover receiver knows the surveyed position of"
+                               "the base station and has an RTK solution, this reports a pseudo-absolute"
+                               "position solution using the base station position and the rover's RTK"
+                               "baseline vector.")
+                    
+                    for msg_type in msg_list:
+                        msg, metadata = next(source.filter([msg_type]),(None,None))
+
+                        print(f'Data Recieving from piksi at IP {msg.sender}')
+                        #print("Latitude: %.4f, Longitude: %.4f" % (msg.lat , msg.lon )
+                        # LLH position in deg-deg-m
+                        if msg is not None:
+                            print(f'Data Receiving from Piksi at IP {msg.sender}')
+                            
                             if msg.msg_type == 522:
                                 self.lat = msg.lat
                                 self.lon = msg.lon
                                 self.h = msg.height
-
                             # RTK position in mm (from base to rover)
                             elif msg.msg_type == 524:
                                 self.n = msg.n
                                 self.e = msg.e
                                 self.d = msg.d
-                                self.flag = msg.flags
-
+                                
                             # RTK velocity in mm/s
                             elif msg.msg_type == 526:
                                 self.v_n = msg.n
                                 self.v_e = msg.e
                                 self.v_d = msg.d
-
                             # GPS time
                             elif msg.msg_type == 258:
                                 self.wn = msg.wn
-                                self.tow = msg.tow  # in millis
-
+                                self.tow = msg.tow  # in milli
                             else:
                                 pass
                             
-                            self.log()
-                            print(self.whole_string())
-                            # f.write(line)
-                            # f.write('\n')
-
-                except iteration==10:
+                    self.log()
+                    print(self.whole_string())
+                    # f.write(line)
+                    # f.write('\n')
+    
+                except KeyboardInterrupt:
                     print("Error getting data!")
     
     
@@ -114,10 +114,10 @@ class connect_pksi_dgps():
         Returns all the data as a string
         '''
 
-        return('%.0f\t%.0f\t%2.8f\t%2.8f\t%4.6f\t%6.0f\t%6.0f\t%6.0f\t'
-               '%6.0f\t%6.0f\t%6.0f\t%.0f\t' %
+        return('wn: %.0f\ttow: %.0f\tlat: %.4f\tlon: %.4f\th: %4.6f\tn: %6.0f\te: %6.0f\td: %6.0f\t'
+               'v_n: %6.0f\tv_e: %6.0f\tv_d: %6.0f\t' %
                (self.wn, self.tow, self.lat, self.lon, self.h, self.n, self.e,
-                self.d, self.v_n, self.v_e, self.v_d, self.flag))
+                self.d, self.v_n, self.v_e, self.v_d))
     
     def log(self):
         data_JSON =  {
