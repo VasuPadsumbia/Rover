@@ -3,7 +3,8 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from create_map_network import MapHandler
 import sys
-sys.path.append('/home/outdoor/Rover')
+#sys.path.append('/home/outdoor/Rover')
+sys.path.append('/home/vasu/Rover')
 from sensor.dgps.DGPS import connect_pksi_dgps
 import json
 from json.decoder import JSONDecodeError
