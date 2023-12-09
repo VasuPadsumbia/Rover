@@ -3,8 +3,9 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from create_map_network import MapHandler
 import sys
-sys.path.append('/home/outdoor/Rover')
-from sensor.dgps.DGPS import connect_pksi_dgps
+#sys.path.append('/home/outdoor/Rover')
+""" sys.path.append('/home/vasu/Rover')
+from sensor.dgps.DGPS import connect_pksi_dgps """
 import json
 from json.decoder import JSONDecodeError
 import os
@@ -24,7 +25,7 @@ except JSONDecodeError as e:
 
 
 centre_point = (lat, lon)
-Destination = (53.517991, 8.60) 
+Destination = (53.540966, 8.585301) 
 
 """ try:
     gps = connect_pksi_dgps()
@@ -34,9 +35,9 @@ except KeyboardInterrupt:
     pass """
 
 
-map = MapHandler(type='walk', destination=Destination, place_name='Bremerhaven, Germany', coordinates=centre_point)
+map = MapHandler(type='walk', destination=Destination, coordinates=centre_point)
 print(f'create area graph(): {map.create_area_graph()}')
 print(f'find shortest path between two points(): {map.find_shortest_path_between_two_points()}')
 print(f'cartesian coordinates(): {map.cartesian_coordinates()}')
-print(f'plot graph shortest route(): {map.plot_graph_shortest_route()}')
 print(f'logging coordinates(): {map.log()}')
+print(f'plot graph shortest route(): {map.plot_graph_shortest_route()}')
