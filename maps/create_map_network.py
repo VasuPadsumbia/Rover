@@ -64,7 +64,7 @@ class MapHandler():
         #This Checks if the Streetnetwork File exists(or creation is overwritten using FORCE_CREATE)
         if (not os.path.isfile(path_graphml)) or FORCE_CREATE:
             #There are many different ways to create the Network Graph. Please follow osmnx documentation for more details
-            area_graph = ox.graph_from_place(place_name, network_type = self._network_type)
+            area_graph = ox.graph_from_place(place_name, network_type = self._network_type,dist=150)
             ox.save_graphml(area_graph, path_graphml)
             #This will create streetnetwork.graphml equiv size = 277M
         return path_graphml
@@ -96,7 +96,7 @@ class MapHandler():
         #This Checks if the Streetnetwork File exists(or creation is overwritten using FORCE_CREATE)
         if (not os.path.isfile(path_graphml)) or FORCE_CREATE:
             #There are many different ways to create the Network Graph. Please follow osmnx documentation for more details
-            area_graph = ox.graph_from_point(coordinates, network_type = self._network_type)
+            area_graph = ox.graph_from_point(coordinates, network_type = self._network_type, dist=150)
             ox.save_graphml(area_graph, path_graphml)
             #This will create streetnetwork.graphml equiv size = 277M
         return  path_graphml
