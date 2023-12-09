@@ -1606,7 +1606,7 @@
     </edge>
     <edge source="4411003137" target="4411003139" id="0">
       <data key="d8">[443528372, 1007046478]</data>
-      <data key="d10">['service', 'footway']</data>
+      <data key="d10">['footway', 'service']</data>
       <data key="d12">False</data>
       <data key="d13">False</data>
       <data key="d14">116.396</data>
@@ -1827,7 +1827,7 @@
     <edge source="8944832902" target="1680564103" id="0">
       <data key="d8">[966810585, 155676210]</data>
       <data key="d9">Erich-Koch-Weser-Platz</data>
-      <data key="d10">['pedestrian', 'footway']</data>
+      <data key="d10">['footway', 'pedestrian']</data>
       <data key="d12">False</data>
       <data key="d13">False</data>
       <data key="d14">92.958</data>
@@ -1993,7 +1993,7 @@
       <data key="d14">53.354</data>
       <data key="d15">LINESTRING (8.5862746 53.5420294, 8.5861791 53.5417921, 8.5857949 53.5418512)</data>
     </edge>
-    <data key="d0">2023-12-09 16:42:01</data>
+    <data key="d0">2023-12-09 17:44:05</data>
     <data key="d1">OSMnx 1.8.0</data>
     <data key="d2">epsg:4326</data>
     <data key="d3">True</data>

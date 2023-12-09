@@ -73,7 +73,7 @@ class MapHandler():
         #This Checks if the Streetnetwork File exists(or creation is overwritten using FORCE_CREATE)
         if (not os.path.isfile(path_graphml)) or FORCE_CREATE:
             #There are many different ways to create the Network Graph. Please follow osmnx documentation for more details
-            area_graph = ox.graph_from_place(place_name, buffer_dist=150,network_type = self._network_type)
+            area_graph = ox.graph_from_place(place_name, buffer_dist=200,network_type = self._network_type)
             ox.save_graphml(area_graph, path_graphml)
             print(len(area_graph.nodes), len(area_graph.edges))
             #This will create streetnetwork.graphml equiv size = 277M
@@ -133,12 +133,16 @@ class MapHandler():
         Generating graph map and plotting the graph of the desired location
         
         """
-        #ec = ox.plot.get_edge_colors_by_sttr(self._graph, attr="length", num_bins=5)
 
-        #otherwise, when num_bins is None (default), linearly map one color to each node/edge by value
-        #ec = ox.plot.get_edge_colors_by_sttr(self._graph, attr="length")     
         # Plot the street network
-        fig, ax = ox.plot_graph(self._graph, bgcolor="k", show=True) #node_size=5, edge_color='white',
+        fig, ax = ox.plot_graph(self._graph, bgcolor="k", show=False, close=False)
+        
+        # Plot footprints on the same plot
+        footprints = self.create_footprints()
+        footprints.plot(ax=ax, facecolor='orange', alpha=0.7)
+
+        # Show the plot
+        plt.show()
         
     def create_footprints(self):
         
@@ -148,7 +152,7 @@ class MapHandler():
         """
         #bbox = ox.utils_geo.bbox_from_point(self._origin,dist=150)
         #ox.features_from_bbox(bbox[0],bbox[1],bbox[2],bbox[3],tags={'building':True,'highway':'road'})
-        return ox.features_from_point(self.initial_location, tags={'building':True,'highway':'road'}, dist=150)
+        return ox.features_from_point(self.initial_location, tags={'building':True,'highway':'road'}, dist=200)
 
 
 
@@ -192,43 +196,16 @@ class MapHandler():
         
         """
 
+        fig, ax = ox.plot_graph(self._graph, bgcolor="k", show=False, close=False)
+
+        # Plot footprints on the same plot
+        footprints = self.create_footprints()
+        footprints.plot(ax=ax, facecolor='orange', alpha=0.7)
+
+        ox.plot_graph_route(self._graph, self.find_shortest_path_between_two_points(), route_color='r', route_linewidth=2, ax=ax)
         
-        self._footprints = self.create_footprints()
-        # Plot buildings and other surroundings
-        """ nodes, edges = ox.graph_to_gdfs(self._graph)
-        # Nodes of our shortest path
-        route_nodes = self.find_shortest_path_between_two_points()
-        
-        # Convert the nodes into a line geometry
-        route_line = LineString(list(self._graph.nodes[route_nodes]['y']['x']))
-        
-        # Create a GeoDataFrame from the line
-        route_geom = gpd.GeoDataFrame([route_line], geometry='geometry', crs=edges.crs, columns=['geometry'])
-
-        # Plot edges and nodes
-        ax = edges.plot(linewidth=0.75, color='gray', figsize=(15,15))
-        ax = nodes.plot(ax=ax, markersize=2, color='gray')
-
-        # Add building footprints
-        ax = self._footprints.plot(ax=ax, facecolor='khaki', alpha=0.7)
-
-        # Add the shortest route
-        ax = route_geom.plot(ax=ax, linewidth=2, linestyle='--', color='red')
-        X = [8.5836, 8.55]
-        Y = [53.540559, 53.53]
-        closest_nodes = ox.distance.nearest_nodes(self._graph,X,Y)
-        od_nodes = gpd.GeoDataFrame(closest_nodes, geometry='geometry', crs=nodes.crs)
-
-        # Highlight the starting and ending nodes
-        ax = od_nodes.plot(ax=ax, markersize=100, color='green')
-
- """
-
-        fig, ax = ox.plot_graph_route(self._graph, self.find_shortest_path_between_two_points(), orig_dest_size = 0, node_size=0, show=True)
-        
-        #fig, ax = ox.plot_footprints(self._footprints, color='orange', alpha=0.7, show=False) 
-
-        #fig, ax = ox.plot_graph(self._graph, ax=ax, node_size=0, edge_color="b", edge_linewidth=1) 
+        # Show the plot
+        plt.show()
 
     def log(self):
         try:

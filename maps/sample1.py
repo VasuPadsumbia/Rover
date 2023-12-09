@@ -1,34 +1,35 @@
 import osmnx as ox
-import geopandas as gpd
-import folium
-from shapely.geometry import Point
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
-# Define a bounding box for the map
-north, south, east, west = 37.8, 37.75, -122.4, -122.45
+class MapHandler():
+    def __init__(self, network_type, coordinates):
+        self._network_type = network_type
+        self._coordinates = coordinates
+        self._graph = self.create_street_network_point()
 
-# Download street network data from OSM within the bounding box
-graph = ox.graph_from_bbox(north, south, east, west, network_type='all_private')
+    def create_street_network_point(self):
+        # Generate graph from a point
+        area_graph = ox.graph_from_point(self._coordinates, network_type=self._network_type, dist=200)
+        return area_graph
 
-# Plot the street network
-fig, ax = ox.plot_graph(ox.project_graph(graph), show=False)
+    def create_footprints(self):
+        # Generate footprints from OSMnx around the specified point
+        footprints = ox.features_from_point(self._coordinates, tags={'building':True,'highway':'road'}, dist=200)
+        return footprints
 
-# Identify and mark obstacles on the map
-# For demonstration purposes, let's assume obstacles are represented as points
-obstacle_data = {
-    'name': ['Obstacle1', 'Obstacle2', 'Obstacle3'],
-    'latitude': [37.777, 37.755, 37.770],
-    'longitude': [-122.415, -122.430, -122.405],
-}
+    def plot_graph_and_footprints(self):
+        # Plot the street network graph
+        fig, ax = ox.plot_graph(self._graph, bgcolor="k", show=False, close=False)
 
-# Create a GeoDataFrame from the obstacle data
-obstacle_gdf = gpd.GeoDataFrame(
-    obstacle_data,
-    geometry=gpd.points_from_xy(obstacle_data['longitude'], obstacle_data['latitude'])
-)
+        # Plot footprints on the same plot
+        footprints = self.create_footprints()
+        footprints.plot(ax=ax, facecolor='orange', alpha=0.7)
 
-# Plot the obstacles on the map
-obstacle_gdf.plot(marker='o', color='red', markersize=50, alpha=0.7)
+        # Show the plot
+        plt.show()
 
-# Display the map with obstacles
-#plt.show()
+# Example usage
+coordinates = (53.540559, 8.5836)  # Replace with your desired coordinates
+network_type = 'all'  # Replace with your desired network type
+map_handler = MapHandler(network_type, coordinates)
+map_handler.plot_graph_and_footprints()
