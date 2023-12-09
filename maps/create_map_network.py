@@ -6,11 +6,10 @@ import os, sys, argparse
 import json
 import matplotlib.pyplot as plt
 from scipy.__config__ import show
-import geopandas as gpd
-from shapely.geometry import LineString
+
 
 class MapHandler():
-    def __init__(self, type, destination, place_name=None, coordinates=None) -> None:
+    def __init__(self, type, destination, place_name=None, coordinates=[]) -> None:
         
         """_summary_
 
@@ -28,7 +27,6 @@ class MapHandler():
         self.coordinates = []
         self.initial_location = coordinates
         self._footprints = None
-        self._origin = coordinates
         if coordinates:
             self._path_graphml = self.create_street_network_point(coordinates)
         elif place_name:
@@ -45,10 +43,14 @@ class MapHandler():
         and shall be saved as Bremerhaven_Germany.graphml
         
         """
-        # Get the absolute path of the current working directory
-        current_directory = os.getcwd()
+        # Get the absolute path of the script's directory
+        script_directory = os.path.dirname(os.path.realpath(__file__))
 
-        # Specify the relative path to the data folder
+        # Set the current working directory to the script's directory
+        os.chdir(script_directory)
+        current_directory = os.getcwd()
+        print("Current working directory:", current_directory)
+
         DATA_FOLDER = os.path.join(current_directory, "data")
 
         # Create the "data" folder if it doesn't exist
@@ -67,12 +69,13 @@ class MapHandler():
         #STREETGRAPH_FILENAME = place_name.replace(' ','_').replace(',','_')+'.graphml'
         
         path_graphml = os.path.join(DATA_FOLDER, STREETGRAPH_FILENAME)
-        FORCE_CREATE = False
+        FORCE_CREATE = True
         #This Checks if the Streetnetwork File exists(or creation is overwritten using FORCE_CREATE)
         if (not os.path.isfile(path_graphml)) or FORCE_CREATE:
             #There are many different ways to create the Network Graph. Please follow osmnx documentation for more details
-            area_graph = ox.graph_from_place(place_name, network_type = self._network_type)
+            area_graph = ox.graph_from_place(place_name, buffer_dist=150,network_type = self._network_type)
             ox.save_graphml(area_graph, path_graphml)
+            print(len(area_graph.nodes), len(area_graph.edges))
             #This will create streetnetwork.graphml equiv size = 277M
         return path_graphml
         
@@ -85,9 +88,13 @@ class MapHandler():
         and shall be saved as Bremerhaven_Germany.graphml
         
         """
-        # Get the absolute path of the current working directory
-        current_directory = os.getcwd()
+        # Get the absolute path of the script's directory
+        script_directory = os.path.dirname(os.path.realpath(__file__))
 
+        # Set the current working directory to the script's directory
+        os.chdir(script_directory)
+        current_directory = os.getcwd()
+        print("Current working directory:", current_directory)
         # Specify the relative path to the data folder
         DATA_FOLDER = os.path.join(current_directory, "data")
 
@@ -99,11 +106,12 @@ class MapHandler():
         STREETGRAPH_FILENAME = f'{coordinates[0]}_{coordinates[1]}'.replace(' ','_').replace(',','')+'.graphml'
 
         path_graphml = os.path.join(DATA_FOLDER, STREETGRAPH_FILENAME)
-        FORCE_CREATE = False
+        FORCE_CREATE = True
         #This Checks if the Streetnetwork File exists(or creation is overwritten using FORCE_CREATE)
         if (not os.path.isfile(path_graphml)) or FORCE_CREATE:
             #There are many different ways to create the Network Graph. Please follow osmnx documentation for more details
-            area_graph = ox.graph_from_point(coordinates, network_type = self._network_type, dist=150)
+            area_graph = ox.graph_from_point(coordinates, network_type = self._network_type, dist=200)
+            print(len(area_graph.nodes), len(area_graph.edges))
             ox.save_graphml(area_graph, path_graphml)
             #This will create streetnetwork.graphml equiv size = 277M
         return  path_graphml
@@ -125,13 +133,12 @@ class MapHandler():
         Generating graph map and plotting the graph of the desired location
         
         """
-        ec = ox.plot.get_edge_colors_by_sttr(self._graph, attr="length", num_bins=5)
+        #ec = ox.plot.get_edge_colors_by_sttr(self._graph, attr="length", num_bins=5)
 
         #otherwise, when num_bins is None (default), linearly map one color to each node/edge by value
-        #ec = ox.plot.get_edge_colors_by_sttr(self._graph, attr="length")
-                
+        #ec = ox.plot.get_edge_colors_by_sttr(self._graph, attr="length")     
         # Plot the street network
-        fig, ax = ox.plot_graph(self._graph, node_size=5, edge_color=ec, bgcolor="k", show=False)
+        fig, ax = ox.plot_graph(self._graph, bgcolor="k", show=True) #node_size=5, edge_color='white',
         
     def create_footprints(self):
         
@@ -141,7 +148,7 @@ class MapHandler():
         """
         #bbox = ox.utils_geo.bbox_from_point(self._origin,dist=150)
         #ox.features_from_bbox(bbox[0],bbox[1],bbox[2],bbox[3],tags={'building':True,'highway':'road'})
-        return ox.features_from_point(self._origin, tags={'building':True,'highway':'road'}, dist=150)
+        return ox.features_from_point(self.initial_location, tags={'building':True,'highway':'road'}, dist=150)
 
 
 
