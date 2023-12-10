@@ -15,7 +15,7 @@ except KeyboardInterrupt:
     pass """
 
 
-config_path = f'{os.path.abspath(os.path.dirname(__file__))}/Layers/L1_APP/navigation/gps_data.json'
+config_path = f'{os.path.abspath(os.path.dirname(__file__))}/Layers/L2_Data/gps_data.json'
 
 try:
     with open(config_path, "r") as config_file:

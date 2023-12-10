@@ -133,5 +133,5 @@ class connect_pksi_dgps():
             "velocity_east": self.v_e,             
             "velocity_down": self.v_d,         
         }
-        with open("maps/gps_data.json", "w") as write_file:
+        with open(f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../"))}/L2_Data/gps_data.json', "w") as write_file:
             json.dump(data_JSON, write_file)

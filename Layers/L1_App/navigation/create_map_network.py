@@ -211,7 +211,7 @@ class MapHandler():
         general_footprints = footprints[(footprints['tourism'].isnull()) & (footprints['natural'].isnull())]
         footprints.plot(ax=ax, facecolor='orange', alpha=0.7)
 
-        ox.plot_graph_route(self._graph, self.find_shortest_path_between_two_points(), route_color='r', route_linewidth=2, ax=ax, save=True,filepath=f'{os.path.abspath(os.path.join(os.path.dirname(__file__))),"../../"}/L2_Data/map.png')
+        ox.plot_graph_route(self._graph, self.find_shortest_path_between_two_points(), route_color='r', route_linewidth=2, ax=ax, save=True,filepath=f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../"))}/L2_Data/map.png')
         
         # Show the plot
         plt.show()
