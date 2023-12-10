@@ -169,6 +169,7 @@ class MapHandler():
         node_point1 = ox.nearest_nodes(self._graph, self.initial_location[1], self.initial_location[0])
         node_point2 = ox.nearest_nodes(self._graph, self._destination[1], self._destination[0])
         route_point1_point2 = ox.shortest_path(self._graph, node_point1, node_point2, weight=self._network_type)
+        #route_point1_point2 = ox.k_shortest_paths(self._graph, node_point1, node_point2,k=3, weight='length')
         return route_point1_point2
         
 
@@ -211,8 +212,18 @@ class MapHandler():
         general_footprints = footprints[(footprints['tourism'].isnull()) & (footprints['natural'].isnull())]
         footprints.plot(ax=ax, facecolor='orange', alpha=0.7)
 
-        ox.plot_graph_route(self._graph, self.find_shortest_path_between_two_points(), route_color='r', route_linewidth=2, ax=ax, save=True,filepath=f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../"))}/L2_Data/map.png')
+        #ox.plot_graph_route(self._graph, self.find_shortest_path_between_two_points(), route_color='r', route_linewidth=2, ax=ax, save=True,filepath=f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../"))}/L2_Data/map.png')
         
+        ox.plot_graph_route(self._graph, self.find_shortest_path_between_two_points(), 
+                             route_color='r', 
+                             route_linewidth=2, 
+                             ax=ax, 
+                             save=True,
+                             filepath=f'{os.path.abspath(
+                                 os.path.join(
+                                     os.path.dirname(__file__),"../../"))}/L2_Data/map.png')
+        
+        ax.legend()
         # Show the plot
         plt.show()
 

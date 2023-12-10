@@ -28,9 +28,10 @@ except JSONDecodeError as e:
     print("Failed to read JSON, return code %d\n", e) 
 
 centre_point = (lat, lon)
+print(centre_point)
 Destination = (53.540966, 8.585301) 
 
-map = MapHandler(type='walk', destination=Destination, coordinates=centre_point)
+map = MapHandler(type='all', destination=Destination, coordinates=centre_point)
 print(f'create area graph(): {map.create_area_graph()}')
 print(f'find shortest path between two points(): {map.find_shortest_path_between_two_points()}')
 print(f'cartesian coordinates(): {map.cartesian_coordinates()}')

@@ -100,6 +100,16 @@
       <data key="d5">8.5856175</data>
       <data key="d6">3</data>
     </node>
+    <node id="1275629423">
+      <data key="d4">53.5391214</data>
+      <data key="d5">8.5805118</data>
+      <data key="d6">4</data>
+    </node>
+    <node id="1275629451">
+      <data key="d4">53.5390473</data>
+      <data key="d5">8.5807276</data>
+      <data key="d6">1</data>
+    </node>
     <node id="1275652995">
       <data key="d4">53.5406616</data>
       <data key="d5">8.5854636</data>
@@ -124,6 +134,11 @@
       <data key="d4">53.5416246</data>
       <data key="d5">8.5834194</data>
       <data key="d6">1</data>
+    </node>
+    <node id="1680564042">
+      <data key="d4">53.5388527</data>
+      <data key="d5">8.5803223</data>
+      <data key="d6">4</data>
     </node>
     <node id="1680564045">
       <data key="d4">53.5389863</data>
@@ -173,6 +188,11 @@
       <data key="d4">53.5414294</data>
       <data key="d5">8.5811592</data>
       <data key="d6">4</data>
+    </node>
+    <node id="1834651459">
+      <data key="d4">53.5398407</data>
+      <data key="d5">8.5804776</data>
+      <data key="d6">3</data>
     </node>
     <node id="1865603255">
       <data key="d4">53.5408199</data>
@@ -341,6 +361,11 @@
       <data key="d5">8.5824975</data>
       <data key="d6">3</data>
     </node>
+    <node id="9286589535">
+      <data key="d4">53.5423816</data>
+      <data key="d5">8.581435</data>
+      <data key="d6">3</data>
+    </node>
     <node id="9809512917">
       <data key="d4">53.5406403</data>
       <data key="d5">8.5850654</data>
@@ -376,10 +401,10 @@
       <data key="d5">8.5858109</data>
       <data key="d6">3</data>
     </node>
-    <node id="11064984254">
-      <data key="d4">53.5420294</data>
-      <data key="d5">8.5862746</data>
-      <data key="d6">1</data>
+    <node id="10697428393">
+      <data key="d4">53.5407986</data>
+      <data key="d5">8.5802755</data>
+      <data key="d6">3</data>
     </node>
     <edge source="192502628" target="523139210" id="0">
       <data key="d8">28291085</data>
@@ -407,6 +432,15 @@
       <data key="d12">False</data>
       <data key="d13">True</data>
       <data key="d14">60.042</data>
+    </edge>
+    <edge source="192502629" target="9286589535" id="0">
+      <data key="d8">1043097776</data>
+      <data key="d9">Schleswiger Straße</data>
+      <data key="d10">residential</data>
+      <data key="d11">30</data>
+      <data key="d12">False</data>
+      <data key="d13">False</data>
+      <data key="d14">81.893</data>
     </edge>
     <edge source="192502629" target="192507260" id="0">
       <data key="d8">9423915</data>
@@ -476,7 +510,7 @@
     </edge>
     <edge source="192511525" target="1680564066" id="1">
       <data key="d8">[364612707, 26445558]</data>
-      <data key="d10">['footway', 'steps']</data>
+      <data key="d10">['steps', 'footway']</data>
       <data key="d17">3</data>
       <data key="d12">False</data>
       <data key="d13">True</data>
@@ -553,6 +587,17 @@
       <data key="d11">50</data>
       <data key="d13">True</data>
       <data key="d14">7.191</data>
+    </edge>
+    <edge source="259777318" target="1834651459" id="0">
+      <data key="d8">172575833</data>
+      <data key="d12">False</data>
+      <data key="d16">1</data>
+      <data key="d9">Am Alten Hafen</data>
+      <data key="d10">residential</data>
+      <data key="d11">50</data>
+      <data key="d13">False</data>
+      <data key="d14">40.449</data>
+      <data key="d15">LINESTRING (8.5809566 53.5400244, 8.5808796 53.539939, 8.5807987 53.5398972, 8.5807599 53.5398833, 8.580701 53.5398622, 8.5805835 53.5398431, 8.5804776 53.5398407)</data>
     </edge>
     <edge source="259777318" target="2542120243" id="0">
       <data key="d8">360035607</data>
@@ -682,7 +727,7 @@
     </edge>
     <edge source="690235026" target="1193278381" id="0">
       <data key="d8">[54834841, 185775569, 185775565]</data>
-      <data key="d10">['footway', 'steps']</data>
+      <data key="d10">['steps', 'footway']</data>
       <data key="d12">False</data>
       <data key="d13">False</data>
       <data key="d14">49.819</data>
@@ -728,7 +773,7 @@
     </edge>
     <edge source="1193278381" target="690235026" id="0">
       <data key="d8">[185775569, 54834841, 185775565]</data>
-      <data key="d10">['footway', 'steps']</data>
+      <data key="d10">['steps', 'footway']</data>
       <data key="d12">False</data>
       <data key="d13">True</data>
       <data key="d14">49.819</data>
@@ -754,11 +799,59 @@
     </edge>
     <edge source="1195954424" target="9904464092" id="0">
       <data key="d8">[1080587904, 1080587902, 1080587903]</data>
-      <data key="d10">['footway', 'steps']</data>
+      <data key="d10">['steps', 'footway']</data>
       <data key="d12">False</data>
       <data key="d13">False</data>
       <data key="d14">13.431999999999999</data>
       <data key="d15">LINESTRING (8.5856175 53.5408918, 8.5857495 53.5408664, 8.5857814 53.5408603, 8.5858109 53.5408546)</data>
+    </edge>
+    <edge source="1275629423" target="1680564042" id="0">
+      <data key="d8">155676214</data>
+      <data key="d16">2</data>
+      <data key="d9">Van-Ronzelen-Straße</data>
+      <data key="d10">unclassified</data>
+      <data key="d11">30</data>
+      <data key="d12">False</data>
+      <data key="d13">False</data>
+      <data key="d14">32.396</data>
+    </edge>
+    <edge source="1275629423" target="1275629451" id="0">
+      <data key="d8">434741820</data>
+      <data key="d10">service</data>
+      <data key="d19">parking_aisle</data>
+      <data key="d12">False</data>
+      <data key="d13">True</data>
+      <data key="d14">16.469</data>
+    </edge>
+    <edge source="1275629423" target="6516983326" id="0">
+      <data key="d8">694138456</data>
+      <data key="d12">False</data>
+      <data key="d16">3</data>
+      <data key="d9">Van-Ronzelen-Straße</data>
+      <data key="d10">unclassified</data>
+      <data key="d11">30</data>
+      <data key="d13">False</data>
+      <data key="d14">42.532</data>
+      <data key="d15">LINESTRING (8.5805118 53.5391214, 8.5807098 53.5392737, 8.5808197 53.5394171, 8.5808406 53.5394471)</data>
+    </edge>
+    <edge source="1275629423" target="6516983330" id="0">
+      <data key="d8">694138458</data>
+      <data key="d12">False</data>
+      <data key="d16">1</data>
+      <data key="d9">Van-Ronzelen-Straße</data>
+      <data key="d10">unclassified</data>
+      <data key="d11">30</data>
+      <data key="d13">True</data>
+      <data key="d14">44.038</data>
+      <data key="d15">LINESTRING (8.5805118 53.5391214, 8.5805731 53.5393311, 8.580675 53.539504)</data>
+    </edge>
+    <edge source="1275629451" target="1275629423" id="0">
+      <data key="d8">434741820</data>
+      <data key="d10">service</data>
+      <data key="d19">parking_aisle</data>
+      <data key="d12">False</data>
+      <data key="d13">False</data>
+      <data key="d14">16.469</data>
     </edge>
     <edge source="1275652995" target="1195954424" id="0">
       <data key="d8">103579760</data>
@@ -859,6 +952,16 @@
       <data key="d12">False</data>
       <data key="d13">True</data>
       <data key="d14">20.331</data>
+    </edge>
+    <edge source="1680564042" target="1275629423" id="0">
+      <data key="d8">155676214</data>
+      <data key="d16">2</data>
+      <data key="d9">Van-Ronzelen-Straße</data>
+      <data key="d10">unclassified</data>
+      <data key="d11">30</data>
+      <data key="d12">False</data>
+      <data key="d13">True</data>
+      <data key="d14">32.396</data>
     </edge>
     <edge source="1680564045" target="1680564049" id="0">
       <data key="d8">155676208</data>
@@ -1068,7 +1171,7 @@
     </edge>
     <edge source="1680564103" target="4411004081" id="0">
       <data key="d8">[443528456, 155676195]</data>
-      <data key="d10">['steps', 'pedestrian']</data>
+      <data key="d10">['pedestrian', 'steps']</data>
       <data key="d12">False</data>
       <data key="d13">False</data>
       <data key="d14">87.917</data>
@@ -1077,7 +1180,7 @@
     </edge>
     <edge source="1680564103" target="8944832902" id="0">
       <data key="d8">[966810585, 155676210]</data>
-      <data key="d10">['footway', 'pedestrian']</data>
+      <data key="d10">['pedestrian', 'footway']</data>
       <data key="d12">False</data>
       <data key="d13">True</data>
       <data key="d14">92.95800000000001</data>
@@ -1101,6 +1204,28 @@
       <data key="d14">67.87499999999999</data>
       <data key="d15">LINESTRING (8.5811592 53.5414294, 8.581313 53.5414831, 8.5816237 53.5415919, 8.5820018 53.5417253, 8.5820435 53.54174)</data>
     </edge>
+    <edge source="1834651459" target="2542120243" id="0">
+      <data key="d8">129586749</data>
+      <data key="d12">False</data>
+      <data key="d16">3</data>
+      <data key="d18">B 212</data>
+      <data key="d9">Columbusstraße</data>
+      <data key="d10">primary</data>
+      <data key="d11">50</data>
+      <data key="d13">True</data>
+      <data key="d14">27.552</data>
+    </edge>
+    <edge source="1834651459" target="259777318" id="0">
+      <data key="d8">172575833</data>
+      <data key="d12">False</data>
+      <data key="d16">1</data>
+      <data key="d9">Am Alten Hafen</data>
+      <data key="d10">residential</data>
+      <data key="d11">50</data>
+      <data key="d13">True</data>
+      <data key="d14">40.449</data>
+      <data key="d15">LINESTRING (8.5804776 53.5398407, 8.5805835 53.5398431, 8.580701 53.5398622, 8.5807599 53.5398833, 8.5807987 53.5398972, 8.5808796 53.539939, 8.5809566 53.5400244)</data>
+    </edge>
     <edge source="1865603255" target="9904464092" id="0">
       <data key="d8">1080587902</data>
       <data key="d10">footway</data>
@@ -1120,7 +1245,7 @@
     </edge>
     <edge source="1964580436" target="1964580437" id="0">
       <data key="d8">[185775568, 185775571, 185775566]</data>
-      <data key="d10">['footway', 'steps']</data>
+      <data key="d10">['steps', 'footway']</data>
       <data key="d12">False</data>
       <data key="d13">True</data>
       <data key="d14">43.959</data>
@@ -1148,14 +1273,6 @@
       <data key="d14">33.879</data>
       <data key="d15">LINESTRING (8.5857949 53.5418512, 8.5858178 53.5418932, 8.5858704 53.5420184, 8.5859047 53.5421483)</data>
     </edge>
-    <edge source="1964580436" target="11064984254" id="0">
-      <data key="d8">1191836447</data>
-      <data key="d10">service</data>
-      <data key="d12">False</data>
-      <data key="d13">False</data>
-      <data key="d14">53.354</data>
-      <data key="d15">LINESTRING (8.5857949 53.5418512, 8.5861791 53.5417921, 8.5862746 53.5420294)</data>
-    </edge>
     <edge source="1964580437" target="1193278381" id="0">
       <data key="d8">42102067</data>
       <data key="d12">False</data>
@@ -1167,7 +1284,7 @@
     </edge>
     <edge source="1964580437" target="1964580436" id="0">
       <data key="d8">[185775568, 185775571, 185775566]</data>
-      <data key="d10">['footway', 'steps']</data>
+      <data key="d10">['steps', 'footway']</data>
       <data key="d12">False</data>
       <data key="d13">False</data>
       <data key="d14">43.959</data>
@@ -1248,7 +1365,7 @@
     <edge source="2388422042" target="2388422050" id="0">
       <data key="d8">[1149206076, 230325012]</data>
       <data key="d10">service</data>
-      <data key="d19">['driveway', 'parking_aisle']</data>
+      <data key="d19">['parking_aisle', 'driveway']</data>
       <data key="d12">False</data>
       <data key="d13">True</data>
       <data key="d14">30.619</data>
@@ -1281,7 +1398,7 @@
     <edge source="2388422050" target="2388422042" id="0">
       <data key="d8">[230325012, 1149206076]</data>
       <data key="d10">service</data>
-      <data key="d19">['driveway', 'parking_aisle']</data>
+      <data key="d19">['parking_aisle', 'driveway']</data>
       <data key="d12">False</data>
       <data key="d13">False</data>
       <data key="d14">30.619</data>
@@ -1314,6 +1431,17 @@
       <data key="d13">False</data>
       <data key="d14">7.191</data>
     </edge>
+    <edge source="2529553714" target="10697428393" id="0">
+      <data key="d8">1149206077</data>
+      <data key="d12">False</data>
+      <data key="d16">2</data>
+      <data key="d9">Am Alten Hafen</data>
+      <data key="d10">residential</data>
+      <data key="d11">50</data>
+      <data key="d13">True</data>
+      <data key="d14">90.532</data>
+      <data key="d15">LINESTRING (8.5809466 53.5400888, 8.5808993 53.540141, 8.5802755 53.5407986)</data>
+    </edge>
     <edge source="2542120243" target="253651803" id="0">
       <data key="d8">23963064</data>
       <data key="d12">False</data>
@@ -1322,6 +1450,17 @@
       <data key="d11">50</data>
       <data key="d13">True</data>
       <data key="d14">21.209</data>
+    </edge>
+    <edge source="2542120243" target="1834651459" id="0">
+      <data key="d8">129586749</data>
+      <data key="d12">False</data>
+      <data key="d16">3</data>
+      <data key="d18">B 212</data>
+      <data key="d9">Columbusstraße</data>
+      <data key="d10">primary</data>
+      <data key="d11">50</data>
+      <data key="d13">False</data>
+      <data key="d14">27.552</data>
     </edge>
     <edge source="2542120243" target="6515160752" id="0">
       <data key="d8">364612706</data>
@@ -1606,7 +1745,7 @@
     </edge>
     <edge source="4411003137" target="4411003139" id="0">
       <data key="d8">[443528372, 1007046478]</data>
-      <data key="d10">['service', 'footway']</data>
+      <data key="d10">['footway', 'service']</data>
       <data key="d12">False</data>
       <data key="d13">False</data>
       <data key="d14">116.396</data>
@@ -1630,7 +1769,7 @@
     </edge>
     <edge source="4411003139" target="4411003137" id="0">
       <data key="d8">[443528372, 1007046478]</data>
-      <data key="d10">['service', 'footway']</data>
+      <data key="d10">['footway', 'service']</data>
       <data key="d12">False</data>
       <data key="d13">True</data>
       <data key="d14">116.396</data>
@@ -1655,7 +1794,7 @@
     <edge source="4411004081" target="1680564103" id="0">
       <data key="d8">[443528456, 155676195]</data>
       <data key="d9">Erich-Koch-Weser-Platz</data>
-      <data key="d10">['steps', 'pedestrian']</data>
+      <data key="d10">['pedestrian', 'steps']</data>
       <data key="d12">False</data>
       <data key="d13">True</data>
       <data key="d14">87.917</data>
@@ -1717,6 +1856,17 @@
       <data key="d14">19.966</data>
       <data key="d15">LINESTRING (8.5808406 53.5394471, 8.5809435 53.5394209, 8.5810082 53.5394276, 8.5810632 53.539494)</data>
     </edge>
+    <edge source="6516983326" target="1275629423" id="0">
+      <data key="d8">694138456</data>
+      <data key="d12">False</data>
+      <data key="d16">3</data>
+      <data key="d9">Van-Ronzelen-Straße</data>
+      <data key="d10">unclassified</data>
+      <data key="d11">30</data>
+      <data key="d13">True</data>
+      <data key="d14">42.532</data>
+      <data key="d15">LINESTRING (8.5808406 53.5394471, 8.5808197 53.5394171, 8.5807098 53.5392737, 8.5805118 53.5391214)</data>
+    </edge>
     <edge source="6516983327" target="253651803" id="0">
       <data key="d8">694138454</data>
       <data key="d12">False</data>
@@ -1763,6 +1913,17 @@
       <data key="d11">30</data>
       <data key="d13">True</data>
       <data key="d14">11.605</data>
+    </edge>
+    <edge source="6516983330" target="1275629423" id="0">
+      <data key="d8">694138458</data>
+      <data key="d12">False</data>
+      <data key="d16">1</data>
+      <data key="d9">Van-Ronzelen-Straße</data>
+      <data key="d10">unclassified</data>
+      <data key="d11">30</data>
+      <data key="d13">False</data>
+      <data key="d14">44.038</data>
+      <data key="d15">LINESTRING (8.580675 53.539504, 8.5805731 53.5393311, 8.5805118 53.5391214)</data>
     </edge>
     <edge source="8890461909" target="8890461911" id="0">
       <data key="d8">961071071</data>
@@ -1827,11 +1988,20 @@
     <edge source="8944832902" target="1680564103" id="0">
       <data key="d8">[966810585, 155676210]</data>
       <data key="d9">Erich-Koch-Weser-Platz</data>
-      <data key="d10">['footway', 'pedestrian']</data>
+      <data key="d10">['pedestrian', 'footway']</data>
       <data key="d12">False</data>
       <data key="d13">False</data>
       <data key="d14">92.958</data>
       <data key="d15">LINESTRING (8.5824975 53.5399996, 8.5824182 53.5399733, 8.5815051 53.5396682, 8.5814744 53.5396589, 8.5814243 53.5396436, 8.5812634 53.5396883)</data>
+    </edge>
+    <edge source="9286589535" target="192502629" id="0">
+      <data key="d8">1043097776</data>
+      <data key="d9">Schleswiger Straße</data>
+      <data key="d10">residential</data>
+      <data key="d11">30</data>
+      <data key="d12">False</data>
+      <data key="d13">True</data>
+      <data key="d14">81.893</data>
     </edge>
     <edge source="9809512917" target="1865603255" id="0">
       <data key="d8">[175997381, 175997382]</data>
@@ -1979,21 +2149,24 @@
     </edge>
     <edge source="9904464092" target="1195954424" id="0">
       <data key="d8">[1080587904, 1080587902, 1080587903]</data>
-      <data key="d10">['footway', 'steps']</data>
+      <data key="d10">['steps', 'footway']</data>
       <data key="d12">False</data>
       <data key="d13">True</data>
       <data key="d14">13.431999999999999</data>
       <data key="d15">LINESTRING (8.5858109 53.5408546, 8.5857814 53.5408603, 8.5857495 53.5408664, 8.5856175 53.5408918)</data>
     </edge>
-    <edge source="11064984254" target="1964580436" id="0">
-      <data key="d8">1191836447</data>
-      <data key="d10">service</data>
+    <edge source="10697428393" target="2529553714" id="0">
+      <data key="d8">1149206077</data>
       <data key="d12">False</data>
-      <data key="d13">True</data>
-      <data key="d14">53.354</data>
-      <data key="d15">LINESTRING (8.5862746 53.5420294, 8.5861791 53.5417921, 8.5857949 53.5418512)</data>
+      <data key="d16">2</data>
+      <data key="d9">Am Alten Hafen</data>
+      <data key="d10">residential</data>
+      <data key="d11">50</data>
+      <data key="d13">False</data>
+      <data key="d14">90.532</data>
+      <data key="d15">LINESTRING (8.5802755 53.5407986, 8.5808993 53.540141, 8.5809466 53.5400888)</data>
     </edge>
-    <data key="d0">2023-12-10 21:05:47</data>
+    <data key="d0">2023-12-10 21:07:55</data>
     <data key="d1">OSMnx 1.8.0</data>
     <data key="d2">epsg:4326</data>
     <data key="d3">True</data>
