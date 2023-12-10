@@ -62,12 +62,12 @@ class connect_pksi_dgps():
                     msg_list = [SBP_MSG_BASELINE_NED, SBP_MSG_POS_LLH,
                                     SBP_MSG_VEL_NED, SBP_MSG_GPS_TIME]
 
-                    print("The position solution message reports absolute Earth Centered Earth Fixed (ECEF)" 
-                              "coordinates and the status (single point vs pseudo-absolute RTK) of"
-                               "the position solution. If the rover receiver knows the surveyed position of"
-                               "the base station and has an RTK solution, this reports a pseudo-absolute"
-                               "position solution using the base station position and the rover's RTK"
-                               "baseline vector.")
+                    print("  This position solution message reports the absolute geodetic coordinates and" 
+                              " the status (single point vs pseudo-absolute RTK) of the position solution."
+                               "If the rover receiver knows the surveyed position of the base station and"
+                               "has an RTK solution, this reports a pseudo-absolute position solution using"
+                               "the base station position and the rover's RTK baseline vector. The full GPS"
+                               "time is given by the preceding MSG_GPS_TIME with the matching time-of-week(tow)")
                     
                     for msg_type in msg_list:
                         msg, metadata = next(source.filter([msg_type]),(None,None))
@@ -131,7 +131,7 @@ class connect_pksi_dgps():
             "Height_base": self.h,
             "velocity_north": self.v_n,
             "velocity_east": self.v_e,             
-            "velocity_down": self.v_d,         #wn = 0
+            "velocity_down": self.v_d,         
         }
         with open("maps/gps_data.json", "w") as write_file:
             json.dump(data_JSON, write_file)
