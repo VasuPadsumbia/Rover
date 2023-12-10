@@ -6,14 +6,6 @@ from json.decoder import JSONDecodeError
 import json
 
 
-class Singleton_meta(type):
-    _instances = {}
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton_meta, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
-
-
 class connect_pksi_dgps():
 
     def __init__(self) -> None:
@@ -38,7 +30,7 @@ class connect_pksi_dgps():
         self.wn = 0
         self.tow = 0
         
-        self.config_path = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../.."))}/Configure.json'
+        self.config_path = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../../.."))}/Configure.json'
         
 
         try:
@@ -133,5 +125,7 @@ class connect_pksi_dgps():
             "velocity_east": self.v_e,             
             "velocity_down": self.v_d,         
         }
-        with open(f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../"))}/L2_Data/gps_data.json', "w") as write_file:
+        with open(f'{os.path.abspath(
+            os.path.join(
+                os.path.dirname(__file__),"../../.."))}/L2_Data/gps_data.json', "w") as write_file:
             json.dump(data_JSON, write_file)

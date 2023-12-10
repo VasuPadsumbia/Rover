@@ -20,7 +20,7 @@ class connect_pksi_gyroscope():
         self.gyr_y_ = 0.0
         self.gyr_z_ = 0.0
         
-        self.config_path = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../.."))}/Configure.json'
+        self.config_path = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../../.."))}/Configure.json'
         
 
         try:
@@ -65,7 +65,9 @@ class connect_pksi_gyroscope():
             "gyr_y": self.gyr_y_,
             "gyr_z": self.gyr_z_
         }
-        with open("imu/gyro_data.json", "w") as write_file:
+        with open(f'{os.path.abspath(
+            os.path.join(
+                os.path.dirname(__file__),"../../.."))}/L2_Data/gyro_data.json', "w") as write_file:
             json.dump(data_JSON, write_file)
     
 

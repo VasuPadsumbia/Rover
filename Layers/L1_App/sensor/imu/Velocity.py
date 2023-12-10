@@ -17,7 +17,7 @@ class connect_pksi_velocity():
         """
         self.sog_ = 0.0
         
-        self.config_path = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../.."))}/Configure.json'
+        self.config_path = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../../.."))}/Configure.json'
         
 
         try:
@@ -53,7 +53,9 @@ class connect_pksi_velocity():
             data_JSON =  {
                 "sog": self.sog_,
             }
-            with open("imu/speed_over_gnd_data.json", "w") as write_file:
+            with open(f'{os.path.abspath(
+                os.path.join(
+                    os.path.dirname(__file__),"../../.."))}/L2_Data/speed_over_gnd_data.json', "w") as write_file:
                 json.dump(data_JSON, write_file)
     
     
