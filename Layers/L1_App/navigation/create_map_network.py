@@ -211,7 +211,7 @@ class MapHandler():
         general_footprints = footprints[(footprints['tourism'].isnull()) & (footprints['natural'].isnull())]
         footprints.plot(ax=ax, facecolor='orange', alpha=0.7)
 
-        ox.plot_graph_route(self._graph, self.find_shortest_path_between_two_points(), route_color='r', route_linewidth=2, ax=ax, save=True,filepath=f'{os.path.abspath(os.path.join(os.path.dirname(__file__)))}/map.png')
+        ox.plot_graph_route(self._graph, self.find_shortest_path_between_two_points(), route_color='r', route_linewidth=2, ax=ax, save=True,filepath=f'{os.path.abspath(os.path.join(os.path.dirname(__file__))),"../../"}/L2_Data/map.png')
         
         # Show the plot
         plt.show()
@@ -226,7 +226,7 @@ class MapHandler():
                             } 
                     } for i in range(0,len(self.coordinates),2)]
             print(data_JSON)
-            path = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),""))}/map_coordinates.json'
+            path = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../"))}/L2_Data/map_coordinates.json'
             #self.coordinates[['x', 'y', 'elevation']].to_json(path, orient='records', lines=True)
             with open(path, "w") as write_file:
                 json.dump(data_JSON, write_file)
