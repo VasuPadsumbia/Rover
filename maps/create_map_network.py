@@ -1,12 +1,13 @@
 from math import dist
-from numpy import short
+from numpy import save, short
 import osmnx as ox
 import networkx as nx
 import os, sys, argparse
 import json
 import matplotlib.pyplot as plt
 from scipy.__config__ import show
-
+from matplotlib.patches import Patch
+from sklearn import tree
 
 class MapHandler():
     def __init__(self, type, destination, place_name=None, coordinates=[]) -> None:
@@ -138,13 +139,13 @@ class MapHandler():
         fig, ax = ox.plot_graph(self._graph, bgcolor="k", show=False, close=False)
         
         # Plot footprints on the same plot
-        footprints = self.create_footprints()
+        footprints = self.create_footprints({'building':True,'highway':'road', 'natural':'tree'})
         footprints.plot(ax=ax, facecolor='orange', alpha=0.7)
 
         # Show the plot
         plt.show()
         
-    def create_footprints(self):
+    def create_footprints(self,tags):
         
         """
         Generating graph map and plotting the graph of the desired location
@@ -152,7 +153,7 @@ class MapHandler():
         """
         #bbox = ox.utils_geo.bbox_from_point(self._origin,dist=150)
         #ox.features_from_bbox(bbox[0],bbox[1],bbox[2],bbox[3],tags={'building':True,'highway':'road'})
-        return ox.features_from_point(self.initial_location, tags={'building':True,'highway':'road'}, dist=200)
+        return ox.features_from_point(self.initial_location, tags=tags, dist=200)
 
 
 
@@ -198,12 +199,20 @@ class MapHandler():
 
         fig, ax = ox.plot_graph(self._graph, bgcolor="k", show=False, close=False)
 
+        tags = {'building':True,'highway':'road', 'natural': True ,'tourism':'college'}
         # Plot footprints on the same plot
-        footprints = self.create_footprints()
+        footprints = self.create_footprints(tags) 
+        college = footprints[footprints['tourism'] == 'museum']
+        college.plot(ax=ax, facecolor='red', alpha=0.7, label='museum', aspect='equal')
+
+        tree = footprints[footprints['natural'] == 'tree']
+        tree.plot(ax=ax, facecolor='green', alpha=0.7, label='tree', aspect='equal')
+        
+        general_footprints = footprints[(footprints['tourism'].isnull()) & (footprints['natural'].isnull())]
         footprints.plot(ax=ax, facecolor='orange', alpha=0.7)
 
-        ox.plot_graph_route(self._graph, self.find_shortest_path_between_two_points(), route_color='r', route_linewidth=2, ax=ax)
-        
+        ox.plot_graph_route(self._graph, self.find_shortest_path_between_two_points(), route_color='r', route_linewidth=2, ax=ax,save=True,)
+
         # Show the plot
         plt.show()
 
