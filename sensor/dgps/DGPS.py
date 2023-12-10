@@ -20,7 +20,8 @@ class connect_pksi_dgps():
 
         """_summary_
 
-        Args:
+        This code opens piksi multi at IP address mentioned in Config.json file in workspace
+        and generats coordinates of the rover and saves it into maps/gps_data.json.
 
         """
         self.flag = 0.0
@@ -51,7 +52,6 @@ class connect_pksi_dgps():
             print("Failed to read JSON, return code %d\n", e)
 
     def get_data(self):
-        iteration = 0
         ''' Creates Piksi connection'''
         with TCPDriver(self.IP_add, self.port) as driver:
             with Handler(Framer(driver.read, None, verbose=True)) as source:
@@ -72,7 +72,6 @@ class connect_pksi_dgps():
                     for msg_type in msg_list:
                         msg, metadata = next(source.filter([msg_type]),(None,None))
 
-                        print(f'Data Recieving from piksi at IP {msg.sender}')
                         #print("Latitude: %.4f, Longitude: %.4f" % (msg.lat , msg.lon )
                         # LLH position in deg-deg-m
                         if msg is not None:

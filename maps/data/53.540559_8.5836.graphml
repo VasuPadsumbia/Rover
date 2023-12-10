@@ -949,7 +949,7 @@
     <edge source="1680564064" target="1680564099" id="0">
       <data key="d8">[337368155, 364544199]</data>
       <data key="d12">False</data>
-      <data key="d16">['4', '3']</data>
+      <data key="d16">['3', '4']</data>
       <data key="d18">B 212</data>
       <data key="d9">Columbusstraße</data>
       <data key="d10">primary</data>
@@ -1050,7 +1050,7 @@
     <edge source="1680564099" target="1680564064" id="0">
       <data key="d8">[337368155, 364544199]</data>
       <data key="d12">False</data>
-      <data key="d16">['4', '3']</data>
+      <data key="d16">['3', '4']</data>
       <data key="d18">B 212</data>
       <data key="d9">Columbusstraße</data>
       <data key="d10">primary</data>
@@ -1077,7 +1077,7 @@
     </edge>
     <edge source="1680564103" target="8944832902" id="0">
       <data key="d8">[966810585, 155676210]</data>
-      <data key="d10">['pedestrian', 'footway']</data>
+      <data key="d10">['footway', 'pedestrian']</data>
       <data key="d12">False</data>
       <data key="d13">True</data>
       <data key="d14">92.95800000000001</data>
@@ -1248,7 +1248,7 @@
     <edge source="2388422042" target="2388422050" id="0">
       <data key="d8">[1149206076, 230325012]</data>
       <data key="d10">service</data>
-      <data key="d19">['parking_aisle', 'driveway']</data>
+      <data key="d19">['driveway', 'parking_aisle']</data>
       <data key="d12">False</data>
       <data key="d13">True</data>
       <data key="d14">30.619</data>
@@ -1281,7 +1281,7 @@
     <edge source="2388422050" target="2388422042" id="0">
       <data key="d8">[230325012, 1149206076]</data>
       <data key="d10">service</data>
-      <data key="d19">['parking_aisle', 'driveway']</data>
+      <data key="d19">['driveway', 'parking_aisle']</data>
       <data key="d12">False</data>
       <data key="d13">False</data>
       <data key="d14">30.619</data>
@@ -1606,7 +1606,7 @@
     </edge>
     <edge source="4411003137" target="4411003139" id="0">
       <data key="d8">[443528372, 1007046478]</data>
-      <data key="d10">['footway', 'service']</data>
+      <data key="d10">['service', 'footway']</data>
       <data key="d12">False</data>
       <data key="d13">False</data>
       <data key="d14">116.396</data>
@@ -1630,7 +1630,7 @@
     </edge>
     <edge source="4411003139" target="4411003137" id="0">
       <data key="d8">[443528372, 1007046478]</data>
-      <data key="d10">['footway', 'service']</data>
+      <data key="d10">['service', 'footway']</data>
       <data key="d12">False</data>
       <data key="d13">True</data>
       <data key="d14">116.396</data>
@@ -1655,7 +1655,7 @@
     <edge source="4411004081" target="1680564103" id="0">
       <data key="d8">[443528456, 155676195]</data>
       <data key="d9">Erich-Koch-Weser-Platz</data>
-      <data key="d10">['pedestrian', 'steps']</data>
+      <data key="d10">['steps', 'pedestrian']</data>
       <data key="d12">False</data>
       <data key="d13">True</data>
       <data key="d14">87.917</data>
@@ -1827,7 +1827,7 @@
     <edge source="8944832902" target="1680564103" id="0">
       <data key="d8">[966810585, 155676210]</data>
       <data key="d9">Erich-Koch-Weser-Platz</data>
-      <data key="d10">['pedestrian', 'footway']</data>
+      <data key="d10">['footway', 'pedestrian']</data>
       <data key="d12">False</data>
       <data key="d13">False</data>
       <data key="d14">92.958</data>
@@ -1993,7 +1993,7 @@
       <data key="d14">53.354</data>
       <data key="d15">LINESTRING (8.5862746 53.5420294, 8.5861791 53.5417921, 8.5857949 53.5418512)</data>
     </edge>
-    <data key="d0">2023-12-09 23:31:09</data>
+    <data key="d0">2023-12-10 17:26:30</data>
     <data key="d1">OSMnx 1.8.0</data>
     <data key="d2">epsg:4326</data>
     <data key="d3">True</data>
