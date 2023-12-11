@@ -1,11 +1,14 @@
-import json, time
+import json, time, os
 from datetime import datetime
 import numpy as np
 from matplotlib import pyplot as plt
-from Layers.L2_Data.pub_data_handler import Pub_Handler
-#from Layers.L1_App.driver.rover import
 from helper import *
+from json.decoder import JSONDecodeError
 
+from Layers.L2_Data.pub_data_handler import Pub_Handler
+from Layers.L1_App.sensor.dgps.DGPS import connect_pksi_dgps
+#from Layers.L1_App.driver.rover import
+from Layers.L1_App.navigation.create_map_network import MapHandler
 
 class AppCommand:
     def __init__(self) -> None:
@@ -42,8 +45,8 @@ class AppCommand:
                     print("manualMode received: {}".format(json_object["manualMode"]))
                     self.rover(int(json_object["manualMode"]))
 
-                elif not (json_object.get("targetPosition") is None):
-                    q2.put(json_object["targetPosition"])
+                elif not (json_object.get("targetLocation") is None):
+                    q2.put(json_object["targetLocation"])
 
                 else:
                     print("not a valid Json format!")
@@ -51,14 +54,16 @@ class AppCommand:
             except KeyboardInterrupt:
                 print("exiting")
 
-
-class AppData:
+#Update the below code for point cloud from SICK laser sensor or camera object avoidance algorithm
+""" class AppData:
     def __init__(self) -> None:
-        """Init MQTT & SPI"""
+        Init MQTT & SPI
         self.mqtt = Pub_Handler()
         self.spi = SPI()
         self.datarefreshRate = 30
+        
 
+    
     def uploader(self, dataList):
         print(dataList)
 
@@ -119,41 +124,52 @@ class AppData:
                 time.sleep(0.1)
 
             except Exception as e:
-                print(e)
+                print(e) """
 
 
 class Navigator:
     def __init__(self) -> None:
         self.mqtt = Pub_Handler()
 
+        """Establishing connection with GPS"""
+        try:
+            gps = connect_pksi_dgps()
+            self.coordinates = gps.get_data()
+            print(f'Getting Longitudenal and Latitude data: {self.coordinates}')
+            print(f'Logging Longitudenal and Latitude data: {gps.log()}')
+        except KeyboardInterrupt:
+            print("GPS connection ended")
+    
+    
     def autonomousNavigator(self, q2):
         try:
             """Once set the target position, this function will receive
             the value and set it to algorithm to start."""
-            targetPosition = q2.get()
-            print(targetPosition)
+            targetLocation = q2.get()
+            print(targetLocation)
 
-            """with open(smallMap_path(), "r") as f:
-                mapData = json.load(f)['data']
-                
-            with open(polarMap_path(), "r") as f:
-                jsonData = json.load(f)
-                navigator = Navigator(point_cloud_polar, position_map, path_map, target) -> None:
-                startTime = datetime.now()
-                path = navigator.generate_path()
-                stopTime = datetime.now()
-                timeTaken = stopTime - startTime
+            print(self.coordinates)
+            map = MapHandler(type='all', destination=targetLocation, coordinates=self.coordinates)
+            print(f'create area graph(): 
+                  {map.create_area_graph()}')
+            print(f'find shortest path between two points(): 
+                  {map.find_shortest_path_between_two_points()}')
+            cartesian_coordinates = map.cartesian_coordinates()
+            print(f'cartesian coordinates(): 
+                  {cartesian_coordinates}')
+            print(f'logging coordinates(): 
+                  {map.log()}')
+            #print(f'plot graph shortest route(): 
+            #      {map.plot_graph_shortest_route()}')
 
-                direction = navigator.get_orientation()
+            # Publish the initial direction to app
+            msg_dict = {
+                "topic": '/navigation/data',
+                "path": cartesian_coordinates,
+                "coordinates": self.coordinates
+            }
 
-                # Publish the initial direction to app
-                msg_dict = {
-                    "topic": '/bot/data',
-                    "direction": direction
-                }
-
-                self.mqtt.data_handler(msg_dict)"""
-
+            self.mqtt.data_handler(msg_dict)
         except Exception as e:
             print("error in navigator library!: {}".format(e))
 

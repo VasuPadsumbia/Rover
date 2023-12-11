@@ -65,14 +65,16 @@ class connect_pksi_dgps():
                         msg, metadata = next(source.filter([msg_type]),(None,None))
 
                         #print("Latitude: %.4f, Longitude: %.4f" % (msg.lat , msg.lon )
-                        # LLH position in deg-deg-m
+                        
                         if msg is not None:
                             print(f'Data Receiving from Piksi at IP {msg.sender}')
                             
+                            # LLH position in deg-deg-m
                             if msg.msg_type == 522:
                                 self.lat = msg.lat
                                 self.lon = msg.lon
                                 self.h = msg.height
+                            
                             # RTK position in mm (from base to rover)
                             elif msg.msg_type == 524:
                                 self.n = msg.n
@@ -84,6 +86,7 @@ class connect_pksi_dgps():
                                 self.v_n = msg.n
                                 self.v_e = msg.e
                                 self.v_d = msg.d
+                            
                             # GPS time
                             elif msg.msg_type == 258:
                                 self.wn = msg.wn
@@ -91,14 +94,15 @@ class connect_pksi_dgps():
                             else:
                                 pass
                             
-                    self.log()
+                    #self.log()
                     print(self.whole_string())
                     # f.write(line)
                     # f.write('\n')
     
                 except KeyboardInterrupt:
                     print("Error getting data!")
-    
+
+        return (self.lat, self.lon, self.height)
     
     def whole_string(self):
         '''

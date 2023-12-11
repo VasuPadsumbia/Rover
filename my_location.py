@@ -10,7 +10,7 @@ from json.decoder import JSONDecodeError
 """ try:
     gps = connect_pksi_dgps()
     print(f'Getting Longitudenal and Latitude data: {gps.get_data()}')
-
+    print(f'Logging Longitudenal and Latitude data: {gps.log()}')
 except KeyboardInterrupt:
     pass """
 
