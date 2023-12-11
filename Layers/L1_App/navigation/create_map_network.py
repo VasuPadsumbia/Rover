@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 from scipy.__config__ import show
 from matplotlib.patches import Patch
 from sklearn import tree
+import geopandas as gpd
+from shapely.geometry import Point, LineString
 
 class MapHandler():
     def __init__(self, type, destination, place_name=None, coordinates=[]) -> None:
@@ -156,8 +158,6 @@ class MapHandler():
         return ox.features_from_point(self.initial_location, tags=tags, dist=200)
 
 
-
-
     def find_shortest_path_between_two_points(self):
         
         """
@@ -166,10 +166,52 @@ class MapHandler():
         Please specify the type of network depending on the ride
         
         """
+        # Assuming `G` is your graph, and `current_location` and `destination` are coordinates
+        origin_point = Point(self.initial_location[1], self.initial_location[0])
+        destination_point = Point(self._destination[1], self._destination[0])
+
+        # Find the nearest edge to the current location
+        nearest_edge = ox.nearest_edges(self._graph, X=[self.initial_location[1]], Y=[self.initial_location[0]], return_dist=True)[0]
+
+        edge_key = nearest_edge[2] if len(nearest_edge) > 2 and edge_key in self._graph[nearest_edge[0]][nearest_edge[1]] else None
+        edge_geometry = self._graph[nearest_edge[0]][nearest_edge[1]][edge_key]['geometry'] if edge_key is not None else None
+
+        # Create a GeoDataFrame with the current location and the nearest edge
+        gdf = gpd.GeoDataFrame(geometry=[origin_point, edge_geometry])
+
+        # Find the closest point on the nearest edge to the current location
+        closest_point_on_edge = gdf.distance(gdf.shift(1))[:-1].sum()
+        # Initialize split_line with a default value (e.g., an empty LineString)
+        split_line = LineString()
+
+        if edge_geometry is not None:
+            edge_coords = list(edge_geometry.coords)
+            print(f"Length of edge_coords: {len(edge_coords)}, closest_point_on_edge: {closest_point_on_edge}")
+
+            if closest_point_on_edge < len(edge_coords) and closest_point_on_edge >= 0:
+                split_line = LineString(edge_coords[closest_point_on_edge:])
+            else:
+                print("closest_point_on_edge is outside the valid range of edge_coords.")
+        else:
+            print("Edge geometry is None. Unable to compute split_line.")
+
+        # Print split_line to check its value
+        print(f"split_line: {split_line}")
+
+        # Now split_line is guaranteed to have a value, and you can use it in the rest of your code
+        self._graph.add_edge('split_node', nearest_edge[1], geometry=split_line)
+
+
+        # Split the nearest edge at the closest point
+        #split_line = LineString(list(edge_geometry.coords)[:closest_point_on_edge+1])
+        # Now split_line is guaranteed to have a value, and you can use it in the rest of your code
+        #self._graph.add_edge(nearest_edge[0], 'split_node', geometry=split_line)
+        self._graph.add_edge('split_node', nearest_edge[1], geometry=LineString(list(edge_geometry.coords)[closest_point_on_edge:]))
+
         node_point1 = ox.nearest_nodes(self._graph, self.initial_location[1], self.initial_location[0])
         node_point2 = ox.nearest_nodes(self._graph, self._destination[1], self._destination[0])
-        route_point1_point2 = ox.shortest_path(self._graph, node_point1, node_point2, weight=self._network_type)
-        #route_point1_point2 = ox.k_shortest_paths(self._graph, node_point1, node_point2,k=3, weight='length')
+        #route_point1_point2 = ox.shortest_path(self._graph, node_point1[0], node_point2[0], weight=self._network_type)
+        route_point1_point2 = nx.shortest_path(self._graph, source='split_node', target=node_point2, weight='length')
         return route_point1_point2
         
 
