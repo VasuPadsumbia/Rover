@@ -7,14 +7,14 @@ from json.decoder import JSONDecodeError
 
 from Layers.L2_Data.pub_data_handler import Pub_Handler
 from Layers.L1_App.sensor.dgps.DGPS import connect_pksi_dgps
-#from Layers.L1_App.driver.rover import
+from Layers.L1_App.driver.rover import rover
 from Layers.L1_App.navigation.create_map_network import MapHandler
 
 class AppCommand:
     def __init__(self) -> None:
         """Init Roboclaw"""
         self.enableManual = 69
-
+        self.rover = rover()
         # check connection is working between Jetson and Roboclaw
     """ while True:
             if not self.spi.spiHandshake():
@@ -33,17 +33,19 @@ class AppCommand:
                 # Check data type coming from APP
                 if not (json_object.get("botCommand") is None):
                     print("botCommand received: {}".format(json_object["botCommand"]))
-                    self.rover(self.enableManual)
-                    time.sleep(1)
-                    self.rover(int(json_object["botcommand"]))
+                    self.rover.command(int(json_object["botcommand"]))
 
                 elif not (json_object.get("autoMode") is None):
                     print("autoMode received: {}".format(json_object["autoMode"]))
-                    self.rover(int(json_object["autoMode"]))
+                    q2.put(json_object["targetLocation"])
+                    self.rover.command(int(json_object["autoMode"]))
+
+                #elif not (json_object.get("targetLocation") is None):
+                #    q2.put(json_object["targetLocation"])
 
                 elif not (json_object.get("manualMode") is None):
                     print("manualMode received: {}".format(json_object["manualMode"]))
-                    self.rover(int(json_object["manualMode"]))
+                    self.rover.command(int(json_object["manualMode"]))
 
                 elif not (json_object.get("targetLocation") is None):
                     q2.put(json_object["targetLocation"])

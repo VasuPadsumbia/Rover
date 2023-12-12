@@ -12,5 +12,10 @@
 			"device": 0,
 			"freq": 500000,
 			"mode": 0
+		},
+	"roboclaw":
+		{
+			"bus": "/dev/ttyACM0",
+			"baud": 115200
 		}
 }
