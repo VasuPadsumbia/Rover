@@ -115,6 +115,13 @@ class MapHandler():
             #There are many different ways to create the Network Graph. Please follow osmnx documentation for more details
             area_graph = ox.graph_from_point(coordinates, network_type = self._network_type, dist=200)
             print(len(area_graph.nodes), len(area_graph.edges))
+            start_edge  = ox.nearest_edges(area_graph, self.initial_location[1], self.initial_location[0], return_dist=True)
+            end_edge  = ox.nearest_edges(area_graph, self._destination[1], self._destination[0], return_dist=True)
+            # Add your location as a node to the graph
+            area_graph.add_node("69", x=float(coordinates[1]), y=float(coordinates[0]))
+            #area_graph.add_node("70", x=float(self._destination[1]), y=float(self._destination[0]))
+            area_graph.add_edge("69", start_edge[0][0], length=start_edge[1])
+            #area_graph.add_edge("70", end_edge[0][1], length=end_edge[1])
             ox.save_graphml(area_graph, path_graphml)
             #This will create streetnetwork.graphml equiv size = 277M
         return  path_graphml
@@ -125,10 +132,11 @@ class MapHandler():
         Load graph from graphml file that we created in create_street_network_() function
         
         """
-        if self._path_graphml:
+        try:
             return ox.load_graphml(self._path_graphml)
-        else:
-            raise ValueError("No graph data available. Please create a street network first.")
+        except Exception as e:
+            print(f"Error loading graph: {e}")
+            return ValueError("No graph data available. Please create a street network first.")
     
     def plot_graph_map(self):
         
@@ -138,8 +146,9 @@ class MapHandler():
         """
 
         # Plot the street network
+        #fig, ax = ox.plot_graph(self._graph, bgcolor="k", show=False, close=False)
+        #shortest_path, H = self.find_shortest_path_between_two_points()
         fig, ax = ox.plot_graph(self._graph, bgcolor="k", show=False, close=False)
-        
         # Plot footprints on the same plot
         footprints = self.create_footprints({'building':True,'highway':'road', 'natural':'tree'})
         footprints.plot(ax=ax, facecolor='orange', alpha=0.7)
@@ -166,53 +175,16 @@ class MapHandler():
         Please specify the type of network depending on the ride
         
         """
-        # Assuming `G` is your graph, and `current_location` and `destination` are coordinates
-        origin_point = Point(self.initial_location[1], self.initial_location[0])
-        destination_point = Point(self._destination[1], self._destination[0])
 
-        # Find the nearest edge to the current location
-        nearest_edge = ox.nearest_edges(self._graph, X=[self.initial_location[1]], Y=[self.initial_location[0]], return_dist=True)[0]
-
-        edge_key = nearest_edge[2] if len(nearest_edge) > 2 and edge_key in self._graph[nearest_edge[0]][nearest_edge[1]] else None
-        edge_geometry = self._graph[nearest_edge[0]][nearest_edge[1]][edge_key]['geometry'] if edge_key is not None else None
-
-        # Create a GeoDataFrame with the current location and the nearest edge
-        gdf = gpd.GeoDataFrame(geometry=[origin_point, edge_geometry])
-
-        # Find the closest point on the nearest edge to the current location
-        closest_point_on_edge = gdf.distance(gdf.shift(1))[:-1].sum()
-        # Initialize split_line with a default value (e.g., an empty LineString)
-        split_line = LineString()
-
-        if edge_geometry is not None:
-            edge_coords = list(edge_geometry.coords)
-            print(f"Length of edge_coords: {len(edge_coords)}, closest_point_on_edge: {closest_point_on_edge}")
-
-            if closest_point_on_edge < len(edge_coords) and closest_point_on_edge >= 0:
-                split_line = LineString(edge_coords[closest_point_on_edge:])
-            else:
-                print("closest_point_on_edge is outside the valid range of edge_coords.")
-        else:
-            print("Edge geometry is None. Unable to compute split_line.")
-
-        # Print split_line to check its value
-        print(f"split_line: {split_line}")
-
-        # Now split_line is guaranteed to have a value, and you can use it in the rest of your code
-        self._graph.add_edge('split_node', nearest_edge[1], geometry=split_line)
-
-
-        # Split the nearest edge at the closest point
-        #split_line = LineString(list(edge_geometry.coords)[:closest_point_on_edge+1])
-        # Now split_line is guaranteed to have a value, and you can use it in the rest of your code
-        #self._graph.add_edge(nearest_edge[0], 'split_node', geometry=split_line)
-        self._graph.add_edge('split_node', nearest_edge[1], geometry=LineString(list(edge_geometry.coords)[closest_point_on_edge:]))
-
-        node_point1 = ox.nearest_nodes(self._graph, self.initial_location[1], self.initial_location[0])
-        node_point2 = ox.nearest_nodes(self._graph, self._destination[1], self._destination[0])
-        #route_point1_point2 = ox.shortest_path(self._graph, node_point1[0], node_point2[0], weight=self._network_type)
-        route_point1_point2 = nx.shortest_path(self._graph, source='split_node', target=node_point2, weight='length')
-        return route_point1_point2
+        #start_node = ox.nearest_nodes(self._graph, self.initial_location[1], self.initial_location[0])
+        target_node= ox.nearest_nodes(self._graph, self._destination[1], self._destination[0])
+        
+        shortest_path = nx.shortest_path(self._graph, source=69, target=target_node, weight="length")
+        print(shortest_path)
+        return shortest_path
+        #route_point1_point2 = ox.shortest_path(self._graph, start_edge[1], end_edge[0], weight=self._network_type)
+        #route_point1_point2 = nx.shortest_path(H, source="your_location", target="target_location", weight='length')
+        #return H, route_point1_point2
         
 
     def cartesian_coordinates(self):
@@ -241,7 +213,7 @@ class MapHandler():
         """
 
         fig, ax = ox.plot_graph(self._graph, bgcolor="k", show=False, close=False)
-
+        
         tags = {'building':True,'highway':'road', 'natural': True ,'tourism':'college'}
         # Plot footprints on the same plot
         footprints = self.create_footprints(tags) 
@@ -252,20 +224,27 @@ class MapHandler():
         tree.plot(ax=ax, facecolor='green', alpha=0.7, label='tree', aspect='equal')
         
         general_footprints = footprints[(footprints['tourism'].isnull()) & (footprints['natural'].isnull())]
-        footprints.plot(ax=ax, facecolor='orange', alpha=0.7)
-
-        #ox.plot_graph_route(self._graph, self.find_shortest_path_between_two_points(), route_color='r', route_linewidth=2, ax=ax, save=True,filepath=f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../"))}/L2_Data/map.png')
+        footprints.plot(ax=ax, alpha=0.7)
         
-        ox.plot_graph_route(self._graph, self.find_shortest_path_between_two_points(), 
-                             route_color='r', 
-                             route_linewidth=2, 
-                             ax=ax, 
-                             save=True,
-                             filepath=f'{os.path.abspath(
-                                 os.path.join(
-                                     os.path.dirname(__file__),"../../"))}/L2_Data/map.png')
+        # Highlight your location node
+        your_location_node = self._graph.nodes[69]
+        ax.scatter(your_location_node["x"], your_location_node["y"], c="cyan", s=50, zorder=5, label="Your Location")
         
         ax.legend()
+        #ox.plot_graph_route(self._graph, self.find_shortest_path_between_two_points(), route_color='r', route_linewidth=2, ax=ax, save=True,filepath=f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../"))}/L2_Data/map.png')
+        shortest_path=self.find_shortest_path_between_two_points()
+        
+        if shortest_path is not None:
+            ox.plot_graph_route(self._graph, shortest_path,
+                                 route_color='r', 
+                                 route_linewidth=2, 
+                                 ax=ax, 
+                                 save=True,
+                                 filepath=f'{os.path.abspath(
+                                     os.path.join(
+                                         os.path.dirname(__file__),"../../"))}/L2_Data/map.png')
+        
+        
         # Show the plot
         plt.show()
 
