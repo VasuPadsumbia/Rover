@@ -150,9 +150,24 @@ class MapHandler():
         #shortest_path, H = self.find_shortest_path_between_two_points()
         fig, ax = ox.plot_graph(self._graph, bgcolor="k", show=False, close=False)
         # Plot footprints on the same plot
-        footprints = self.create_footprints({'building':True,'highway':'road', 'natural':'tree'})
-        footprints.plot(ax=ax, facecolor='orange', alpha=0.7)
+        tags = {'building':True,'highway':'road', 'natural': True ,'tourism':'college'}
+        # Plot footprints on the same plot
+        footprints = self.create_footprints(tags) 
+        college = footprints[footprints['tourism'] == 'museum']
+        college.plot(ax=ax, facecolor='red', alpha=0.7, label='museum', aspect='equal')
 
+        tree = footprints[footprints['natural'] == 'tree']
+        tree.plot(ax=ax, facecolor='green', alpha=0.7, label='tree', aspect='equal')
+        
+        general_footprints = footprints[(footprints['tourism'].isnull()) & (footprints['natural'].isnull())]
+        footprints.plot(ax=ax, alpha=0.7)
+        # Highlight your location node
+        your_location_node = self._graph.nodes[69]
+        ax.scatter(your_location_node["x"], your_location_node["y"], c="red", s=50, zorder=5, label="Your Location")
+        
+        plt.savefig(f'{os.path.abspath(
+                                     os.path.join(
+                                         os.path.dirname(__file__),"../../"))}/L2_Data/map.png')
         # Show the plot
         plt.show()
         
