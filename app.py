@@ -33,22 +33,23 @@ class AppCommand:
                 # Check data type coming from APP
                 if not (json_object.get("botCommand") is None):
                     print("botCommand received: {}".format(json_object["botCommand"]))
-                    self.rover.command(int(json_object["botcommand"]))
+                    #self.rover.command(int(json_object["botcommand"]))
 
                 elif not (json_object.get("autoMode") is None):
                     print("autoMode received: {}".format(json_object["autoMode"]))
                     q2.put(json_object["targetLocation"])
-                    self.rover.command(int(json_object["autoMode"]))
+                    #self.rover.command(int(json_object["autoMode"]))
 
                 #elif not (json_object.get("targetLocation") is None):
                 #    q2.put(json_object["targetLocation"])
 
                 elif not (json_object.get("manualMode") is None):
                     print("manualMode received: {}".format(json_object["manualMode"]))
-                    self.rover.command(int(json_object["manualMode"]))
+                    #self.rover.command(int(json_object["manualMode"]))
 
                 elif not (json_object.get("targetLocation") is None):
-                    q2.put(json_object["targetLocation"])
+                    print("targetLocation received: {}".format(json_object["targetLocation"]))
+                    #q2.put(json_object["targetLocation"])
 
                 else:
                     print("not a valid Json format!")
@@ -152,15 +153,11 @@ class Navigator:
 
             print(self.coordinates)
             map = MapHandler(type='all', destination=targetLocation, coordinates=self.coordinates)
-            print(f'create area graph(): 
-                  {map.create_area_graph()}')
-            print(f'find shortest path between two points(): 
-                  {map.find_shortest_path_between_two_points()}')
+            print(f'create area graph(): {map.create_area_graph()}')
+            print(f'find shortest path between two points():{map.find_shortest_path_between_two_points()}')
             cartesian_coordinates = map.cartesian_coordinates()
-            print(f'cartesian coordinates(): 
-                  {cartesian_coordinates}')
-            print(f'logging coordinates(): 
-                  {map.log()}')
+            print(f'cartesian coordinates(): {cartesian_coordinates}')
+            print(f'logging coordinates(): {map.log()}')
             #print(f'plot graph shortest route(): 
             #      {map.plot_graph_shortest_route()}')
 

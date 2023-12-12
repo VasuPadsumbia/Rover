@@ -30,7 +30,7 @@ def config_path():
     '''It return the config file path'''
     try:
         CWD = os.getcwd() #get current directory
-        config_path = os.path.join(CWD, "config.json")
+        config_path = os.path.join(CWD, "Configure.json")
         return config_path
         
     except OSError as errors :

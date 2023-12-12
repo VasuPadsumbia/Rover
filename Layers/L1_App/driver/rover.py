@@ -1,6 +1,6 @@
 import os, json, time
 from json.decoder import JSONDecodeError
-from roboclaw_python.roboclaw_3 import Roboclaw
+from .roboclaw_python.roboclaw_3 import Roboclaw
 
 class rover():
     
@@ -16,7 +16,7 @@ class rover():
 
         self.config_path = f'{os.path.abspath
                               (os.path.join
-                               (os.path.dirname(__file__),"../../../.."))}/Configure.json'
+                               (os.path.dirname(__file__),"../../.."))}/Configure.json'
 
         try:
             with open(self.config_path, "r") as config_file:
