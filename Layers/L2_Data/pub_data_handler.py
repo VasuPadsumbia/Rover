@@ -36,6 +36,7 @@ class Pub_Handler(metaclass = Singleton_meta):
                 msg_dict.pop('topic')
                 msg_json = json.dumps(msg_dict, indent=4)
                 value = [topic, msg_json]
+                print(value)
                 return value
 
         except Exception:
