@@ -6,11 +6,15 @@
             "IP_add": "195.37.48.193",
             "port": 55555
 		},
-	"serial":
+	"mqtt":
 		{
-			"bus": 0,
-			"device": 0,
-			"freq": 500000,
-			"mode": 0
+			"broker": "localhost",
+			"port": 1883,
+			"qos": 2
+		},
+	"roboclaw":
+		{
+			"bus": "/dev/ttyACM0",
+			"baud": 115200
 		}
 }
