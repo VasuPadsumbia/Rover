@@ -1,31 +1,45 @@
 import osmnx as ox
-import geopandas as gpd
-import matplotlib.pyplot as plt
+import folium
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
-# Define a central point (latitude, longitude)
-central_point = (53.540559, 8.5836)  # Example: New York City
+# Define a location (latitude, longitude)
+location_point = (37.7749, -122.4194)  # Example: San Francisco
 
-# Create a street network graph within a specified distance (in meters) from the central point
-G = ox.graph_from_point(central_point, dist=500, network_type="all", simplify=True)
+# Download the street network for the specified location within a distance of 500 meters
+G = ox.graph_from_point(location_point, dist=500, network_type="all")
 
-# Get the bounding box for the street network
-bbox = ox.utils_geo.bbox_from_point(center_point=central_point, distance=500, project_utm=True)
+# Create a folium map centered around the location
+map_osm = folium.Map(location=[location_point[0], location_point[1]], zoom_start=15)
 
-# Retrieve building footprints within the bounding box
-buildings = ox.footprints.footprints_from_bbox(bbox[1], bbox[0], bbox[3], bbox[2], footprint_type='building', simplify=True)
+# Plot the street network on the folium map
+ox.plot_graph_folium(G, graph_map=map_osm, popup_attribute='name', edge_color='k', edge_width=2)
 
-# Create a 2D scatter plot for ground-level coordinates
-fig, ax = plt.subplots(figsize=(10, 10))
+# Save the folium map as an HTML file
+html_file_path = 'osmnx_folium_map.html'
+map_osm.save(html_file_path)
 
-# Plot the street network
-ox.plot_graph(G, node_size=0, ax=ax, show=False, close=False)
+# Set the path to the ChromeDriver executable
+chrome_driver_path = '/path/to/chromedriver'
 
-# Plot building footprints
-buildings.plot(ax=ax, facecolor='khaki', alpha=0.7)
+# Configure Chrome to run in headless mode
+chrome_options = Options()
+chrome_options.add_argument('--headless')
+chrome_options.add_argument('--disable-gpu')  # Disable GPU acceleration to prevent issues
 
-# Set axis labels
-ax.set_xlabel('Longitude')
-ax.set_ylabel('Latitude')
+# Start Chrome browser
+driver = webdriver.Chrome(options=chrome_options, service_args=['--executable-path=' + chrome_driver_path])
 
-plt.title('Street Network with Building Footprints')
-plt.show()
+# Open the HTML file in the browser
+driver.get(f'file://{html_file_path}')
+
+# Wait for some time to ensure that the map is loaded (you may need to adjust this)
+driver.implicitly_wait(10)
+
+# Take a screenshot and save it as an image
+driver.save_screenshot('output_image.png')
+
+# Close the browser
+driver.quit()
+
+print('Image saved: output_image.png')
