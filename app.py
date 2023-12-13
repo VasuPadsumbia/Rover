@@ -38,11 +38,7 @@ class AppCommand:
 
                 elif not (json_object.get("autoMode") is None):
                     print("autoMode received: {}".format(json_object["autoMode"]))
-                    #q2.put(json_object["targetLocation"])
                     #self.rover.command(int(json_object["autoMode"]))
-
-                #elif not (json_object.get("targetLocation") is None):
-                #    q2.put(json_object["targetLocation"])
 
                 elif not (json_object.get("manualMode") is None):
                     print("manualMode received: {}".format(json_object["manualMode"]))
