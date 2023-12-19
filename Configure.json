@@ -9,7 +9,7 @@
 	"mqtt":
 		{
 			"broker": "localhost",
-			"port": 1883,
+			"port": 1884,
 			"qos": 2
 		},
 	"roboclaw":

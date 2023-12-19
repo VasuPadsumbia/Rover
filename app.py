@@ -55,11 +55,11 @@ class AppCommand:
                 print("exiting")
 
 #Update the below code for point cloud from SICK laser sensor or camera object avoidance algorithm
-""" class AppData:
+class AppData:
     def __init__(self) -> None:
-        Init MQTT & SPI
+        #Init MQTT & SPI
         self.mqtt = Pub_Handler()
-        self.spi = SPI()
+        
         self.datarefreshRate = 30
         
 
@@ -88,57 +88,30 @@ class AppCommand:
         # self.mqtt.data_handler(msg_dict)
 
     def worker(self):
-        flag = False
-        counter = 0
-        dataList = []
         while True:
             try:
-                # Read data from SPI
-                val = self.spi.rxpi()
-                #print("val is: ")
-                #print(val)
-                if flag == True:
-                    #print("flag = true!")
-                    dataList.append(val)
-                    if counter == 8:
-                        #print("list full")
-                        print(dataList)
-                        int1 =  dataList[3]<<8
-                        int1 |= dataList[2]
-                        int2 =  dataList[5]<<8
-                        int2 |= dataList[4]
-                        int3 =  dataList[7]<<8
-                        int3 |= dataList[6]
-                        print(int1,int2,int3)
-                        dataList = [int1,int2,int3]
-                        self.uploader(dataList)
-                        counter = 0
-                        flag = False
-                        dataList.clear()
-                    counter+=1
-
-                if val == 89:
-                    #print("89 detected")
-                    flag = True
-
-                time.sleep(0.1)
+                """Establishing connection with GPS"""
+                gps = connect_pksi_dgps()
+                self.coordinates = gps.get_data()
+                print(f'Getting Longitudenal and Latitude data: {self.coordinates}')
+                print(f'Logging Longitudenal and Latitude data: {gps.log()}')
+            except KeyboardInterrupt:
+                print("GPS connection ended") 
 
             except Exception as e:
-                print(e) """
-
+                print(e) 
+            
+            # Dictionary
+            msg_dict = {
+                "topic": "/bot/data",
+                "coordinates": self.coordinates,
+            }
+            print(msg_dict)
+            time.sleep(0.1)
 
 class Navigator:
     def __init__(self) -> None:
         #self.mqtt = Pub_Handler()
-
-        """Establishing connection with GPS"""
-        """ try:
-            gps = connect_pksi_dgps()
-            self.coordinates = gps.get_data()
-            print(f'Getting Longitudenal and Latitude data: {self.coordinates}')
-            print(f'Logging Longitudenal and Latitude data: {gps.log()}')
-        except KeyboardInterrupt:
-            print("GPS connection ended") """
     
         config_path = f'{os.path.abspath(os.path.dirname(__file__))}/Layers/L2_Data/gps_data.json'
 
