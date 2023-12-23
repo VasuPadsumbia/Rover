@@ -1,23 +1,32 @@
-from numpy import True_
+import argparse
 import osmnx as ox
+import networkx as nx
 import matplotlib.pyplot as plt
-import folium
-import json
+from sbp.client.drivers.network_drivers import TCPDriver
+from sbp.client import Handler, Framer
+from sbp.mag import SBP_MSG_MAG_RAW
 
-# Specify the name that is used to seach for the data
-place_name = "Hochschule Bremerhaven, Bremerhaven, Germany"
+def main():
+    #ox.settings.log_console=True
+    #ox.settings.use_cache=True# define the start and end locations in latlng
 
-# Fetch OSM street network from the location
-graph = ox.graph_from_point((53.540559, 8.5836),dist=150,network_type = 'all')
-# Create a street network graph for the specified area
+    # Open a connection to Piksi using TCP
+    with TCPDriver('195.37.48.193', 55555) as driver:
+        with Handler(Framer(driver.read, None, verbose=True)) as source:
+            try:
+                for msg, metadata in source.filter(SBP_MSG_MAG_RAW):
+                    # Print out the N, E, D coordinates of the baseline
+                    print("gyr_x: %.4f, gyr_y: %.4f, gyr_z: %.4f" % (msg.mag_x, msg.mag_y, msg.mag_z))
+                    #centre_point = lat,lon = (msg.x * 1e-3, msg.y * 1e-3)
+                    #graph = ox.graph_from_point(centre_point, dist=1000, dist_type='bbox', 
+                    #        network_type='walk')
+                    #fig, ax = ox.plot_graph(graph, show=False, close=False, 
+                    #                        bgcolor='w',node_color='b', node_size=2)
+                    #plt.plot(lon, lat, marker="o", markersize=5, markeredgecolor="red", markerfacecolor="red", alpha=0.5)
+                    #plt.show() 
+            except KeyboardInterrupt:
+                pass
 
-#nodes, edges = ox.graph_to_gdfs(graph)
-#fig, ax = ox.plot_graph(graph, show=False)
-#graph=ox.features_from_point((53.540559, 8.5836), tags={'building':True,'highway':'road'}, dist=200)
-#ox.plot_footprints(graph,edge_color="blue", edge_linewidth=1, show=False)
-footprint = json.dumps(wkt.loads(products[key]["footprint"]))
-ubc_footprint = folium.Map(location=(53.540559, 8.5836), zoom_start=15)
-folium.GeoJson(footprints).add_to(ubc_footprint)
-ox.plot_graph_folium(G=graph, edge_color='black', edge_width=0.00005, 
-                     node_size=0,bgcolor='lightgray',
-                     tiles='OpenStreetMap',zoom=12,center=(53.540559, 8.5836))
+
+if __name__ == "__main__":
+    main()
