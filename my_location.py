@@ -7,15 +7,15 @@ from Layers.L1_App.sensor.dgps.DGPS import connect_pksi_dgps
 from json.decoder import JSONDecodeError
 
 
-""" try:
+try:
     gps = connect_pksi_dgps()
     print(f'Getting Longitudenal and Latitude data: {gps.get_data()}')
     print(f'Logging Longitudenal and Latitude data: {gps.log()}')
 except KeyboardInterrupt:
-    pass """
+    pass 
 
 
-config_path = f'{os.path.abspath(os.path.dirname(__file__))}/Layers/L2_Data/gps_data.json'
+""" config_path = f'{os.path.abspath(os.path.dirname(__file__))}/Layers/L2_Data/gps_data.json'
 
 try:
     with open(config_path, "r") as config_file:
@@ -37,3 +37,4 @@ print(f'find shortest path between two points(): {map.find_shortest_path_between
 print(f'cartesian coordinates(): {map.cartesian_coordinates()}')
 print(f'logging coordinates(): {map.log()}')
 print(f'plot graph shortest route(): {map.plot_graph_shortest_route()}')
+ """
