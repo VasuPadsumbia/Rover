@@ -1,3 +1,4 @@
+from calendar import c
 from math import dist
 from numpy import save, short
 import osmnx as ox
@@ -35,9 +36,9 @@ class MapHandler():
         elif place_name:
             self._path_graphml = self.create_street_network_place(place_name)
 
-
+        self.dummy = self.get_coordinates_from_json()
         self._graph = self.create_area_graph()
-
+        
     def create_street_network_place(self, place_name):
         
         """
@@ -219,14 +220,14 @@ class MapHandler():
             self.coordinates.append(g.nodes[node_id[x]]['x'])
         return self.coordinates
     
-    def plot_graph_shortest_route(self):
+    def plot_graph_shortest_route(self, current_position):
         
         """
 
         This function develops the graph of shortest route and imposes on the original map of the location
         
         """
-
+        
         fig, ax = ox.plot_graph(self._graph, bgcolor="k", show=False, close=False)
         
         tags = {'building':True,'highway':'road', 'natural': True ,'tourism':'college'}
@@ -244,7 +245,7 @@ class MapHandler():
         # Highlight your location node
         your_location_node = self._graph.nodes[69]
         ax.scatter(your_location_node["x"], your_location_node["y"], c="cyan", s=50, zorder=5, label="Your Location")
-        
+        ax.scatter(y=current_position[0], x=current_position[1], c="orange", s=50, zorder=5, label="Current Location")
         ax.legend()
         #ox.plot_graph_route(self._graph, self.find_shortest_path_between_two_points(), route_color='r', route_linewidth=2, ax=ax, save=True,filepath=f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../"))}/L2_Data/map.png')
         shortest_path=self.find_shortest_path_between_two_points()
@@ -262,16 +263,18 @@ class MapHandler():
         
         # Show the plot
         plt.show()
+        #plt.draw()
+        #plt.pause(3)
 
     def log(self):
         try:
             #location = [{'Point': i // 2 + 1 'latitude': self.coordinates[i], 'longitude': self.coordinates[i+1]}]for i in range(0, len(self.cordinates), 2)
-            data_JSON = [{
+            data_JSON = {
                 f"Point {i // 2 + 1}": {
-                            "Latitude": self.coordinates[i],
-                            "Longitude": self.coordinates[i+1]
-                            } 
-                    } for i in range(0,len(self.coordinates),2)]
+                    "Latitude": self.coordinates[i],
+                    "Longitude": self.coordinates[i+1]
+                } for i in range(0, len(self.coordinates), 2)
+            }
             print(data_JSON)
             path = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../"))}/L2_Data/map_coordinates.json'
             #self.coordinates[['x', 'y', 'elevation']].to_json(path, orient='records', lines=True)
@@ -280,3 +283,16 @@ class MapHandler():
 
         except Exception as e:
             print(f"An error occurred: {e}")
+
+    def get_coordinates_from_json(self):
+        try:
+            path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../L2_Data/gps_dummy.json"))
+            with open(path, "r") as json_file:
+                data = json.load(json_file)
+                lat = data['lat']
+                lon = data['lon']
+                coordinates = [lat, lon]
+                return coordinates
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return None
