@@ -4,13 +4,14 @@ from numpy import save, short
 import osmnx as ox
 import networkx as nx
 import os, sys, argparse
-import json
+import json, matplotlib
 import matplotlib.pyplot as plt
+matplotlib.use('Qt5Agg')
 from scipy.__config__ import show
 from matplotlib.patches import Patch
-from sklearn import tree
-import geopandas as gpd
-from shapely.geometry import Point, LineString
+from matplotlib.animation import FuncAnimation
+from matplotlib.path import Path
+from IPython.display import HTML
 
 class MapHandler():
     def __init__(self, type, destination, place_name=None, coordinates=[]) -> None:
@@ -27,6 +28,7 @@ class MapHandler():
         """
         self._network_type = type
         self._destination = destination
+        self._animation = None
         self.nodes = 0
         self.coordinates = []
         self.initial_location = coordinates
@@ -220,7 +222,7 @@ class MapHandler():
             self.coordinates.append(g.nodes[node_id[x]]['x'])
         return self.coordinates
     
-    def plot_graph_shortest_route(self, current_position):
+    def plot_graph_shortest_route(self):
         
         """
 
@@ -244,27 +246,45 @@ class MapHandler():
         
         # Highlight your location node
         your_location_node = self._graph.nodes[69]
-        ax.scatter(your_location_node["x"], your_location_node["y"], c="cyan", s=50, zorder=5, label="Your Location")
-        ax.scatter(y=current_position[0], x=current_position[1], c="orange", s=50, zorder=5, label="Current Location")
+        start_point, = ax.plot(your_location_node['x'], your_location_node['y'], 'bo', markersize=10, label='Start Point')
+        #ax.scatter(your_location_node["x"], your_location_node["y"], c="cyan", s=50, zorder=5, label="Your Location")
+        #ax.scatter(y=current_position[0], x=current_position[1], c="orange", s=50, zorder=5, label="Current Location")
         ax.legend()
         #ox.plot_graph_route(self._graph, self.find_shortest_path_between_two_points(), route_color='r', route_linewidth=2, ax=ax, save=True,filepath=f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../"))}/L2_Data/map.png')
         shortest_path=self.find_shortest_path_between_two_points()
-        
+        print(len(shortest_path))
+        path_png = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../"))}/L2_Data/map.png'
         if shortest_path is not None:
-            ox.plot_graph_route(self._graph, shortest_path,
-                                 route_color='r', 
-                                 route_linewidth=2, 
-                                 ax=ax, 
-                                 save=True,
-                                 filepath=f'{os.path.abspath(
-                                     os.path.join(
-                                         os.path.dirname(__file__),"../../"))}/L2_Data/map.png')
-        
+            path_line = ox.plot_graph_route(self._graph, shortest_path,route_color='r',route_linewidth=2,ax=ax,save=True,filepath=path_png)
+        # Get the LineString geometry for the edge
+        #edge_linestring = ox.distance.get_route_edge_linestring(G, edge)
+
+        # Extract individual points from the LineString
+        #points = [(point.x, point.y) for point in edge_linestring.coords]
+
+        # Function to update animation frames
+        def update(frame):
+            if frame < len(shortest_path):
+                #print(f"Frame: {frame}")
+                current_node = shortest_path[frame]
+                x = self._graph.nodes[current_node]['x']
+                y = self._graph.nodes[current_node]['y']
+                # Update the position of the PathPatch
+                start_point.set_data(x, y)
+                return start_point,
+            else:
+                #print(f"Frame outside shortest_path: {frame}")
+                return start_point,
+
+        # Animate the movement along the path
+        self._animation = FuncAnimation(fig, update, frames=len(shortest_path), interval=500, repeat=True)
+        # Save the animation
+        path_gif = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../../"))}/path_animation.gif'
+        self._animation.save(path_gif, writer='Pillow')
         
         # Show the plot
         plt.show()
-        #plt.draw()
-        #plt.pause(3)
+
 
     def log(self):
         try:
