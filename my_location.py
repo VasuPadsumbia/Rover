@@ -1,7 +1,4 @@
-import osmnx as ox
-import networkx as nx
-import matplotlib.pyplot as plt
-import os, sys, json
+import os, json
 from Layers.L1_App.navigation.create_map_network import MapHandler
 from Layers.L1_App.sensor.dgps.DGPS import connect_pksi_dgps 
 from json.decoder import JSONDecodeError

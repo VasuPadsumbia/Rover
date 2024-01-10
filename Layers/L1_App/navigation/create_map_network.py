@@ -1,18 +1,14 @@
 from calendar import c
-from math import dist
-from numpy import save, short
 import osmnx as ox
 import networkx as nx
-import os, sys, argparse
-import json, matplotlib
+import os, json
+import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('Qt5Agg')
-from scipy.__config__ import show
-from matplotlib.patches import Patch
 from matplotlib.animation import FuncAnimation
-from matplotlib.path import Path
-from IPython.display import HTML
-
+from Layers.L1_App.navigation.navigation import MapNavigator
+import Layers.L1_App.navigation.manoeuvre as manoeuvre
+from helper import map_coordinate_path
 class MapHandler():
     def __init__(self, type, destination, place_name=None, coordinates=[]) -> None:
         
@@ -26,13 +22,17 @@ class MapHandler():
             destination : desired target location to which the rover need to go.
             nodes = number of turnes for rover to travel till destination
         """
+        self.path = map_coordinate_path()
+        
         self._network_type = type
         self._destination = destination
         self._animation = None
         self.nodes = 0
         self.coordinates = []
+        self.start_point = None
         self.initial_location = coordinates
         self._footprints = None
+        self.shortest_path = None
         if coordinates:
             self._path_graphml = self.create_street_network_point(coordinates)
         elif place_name:
@@ -184,7 +184,6 @@ class MapHandler():
         #ox.features_from_bbox(bbox[0],bbox[1],bbox[2],bbox[3],tags={'building':True,'highway':'road'})
         return ox.features_from_point(self.initial_location, tags=tags, dist=200)
 
-
     def find_shortest_path_between_two_points(self):
         
         """
@@ -204,7 +203,6 @@ class MapHandler():
         #route_point1_point2 = nx.shortest_path(H, source="your_location", target="target_location", weight='length')
         #return H, route_point1_point2
         
-
     def cartesian_coordinates(self):
         
         """
@@ -243,48 +241,32 @@ class MapHandler():
         
         general_footprints = footprints[(footprints['tourism'].isnull()) & (footprints['natural'].isnull())]
         footprints.plot(ax=ax, alpha=0.7)
-        
         # Highlight your location node
         your_location_node = self._graph.nodes[69]
-        start_point, = ax.plot(your_location_node['x'], your_location_node['y'], 'bo', markersize=10, label='Start Point')
+        self.start_point, = ax.plot(your_location_node['x'], your_location_node['y'], 'bo', markersize=10, label='Start Point')
         #ax.scatter(your_location_node["x"], your_location_node["y"], c="cyan", s=50, zorder=5, label="Your Location")
         #ax.scatter(y=current_position[0], x=current_position[1], c="orange", s=50, zorder=5, label="Current Location")
         ax.legend()
         #ox.plot_graph_route(self._graph, self.find_shortest_path_between_two_points(), route_color='r', route_linewidth=2, ax=ax, save=True,filepath=f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../"))}/L2_Data/map.png')
-        shortest_path=self.find_shortest_path_between_two_points()
-        print(len(shortest_path))
+        self.shortest_path=self.find_shortest_path_between_two_points()
+        self._map_navigator = MapNavigator(self._graph,self.shortest_path, self.start_point)
+        self._map_navigator.navigate()
+        self.manoeuvre = manoeuvre.Target_manoeuvre(0.0001, self.path, self._graph, self.shortest_path, self.start_point)
+        
+        print(len(self.shortest_path))
         path_png = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../"))}/L2_Data/map.png'
-        if shortest_path is not None:
-            path_line = ox.plot_graph_route(self._graph, shortest_path,route_color='r',route_linewidth=2,ax=ax,save=True,filepath=path_png)
-        # Get the LineString geometry for the edge
-        #edge_linestring = ox.distance.get_route_edge_linestring(G, edge)
-
-        # Extract individual points from the LineString
-        #points = [(point.x, point.y) for point in edge_linestring.coords]
-
-        # Function to update animation frames
-        def update(frame):
-            if frame < len(shortest_path):
-                #print(f"Frame: {frame}")
-                current_node = shortest_path[frame]
-                x = self._graph.nodes[current_node]['x']
-                y = self._graph.nodes[current_node]['y']
-                # Update the position of the PathPatch
-                start_point.set_data(x, y)
-                return start_point,
-            else:
-                #print(f"Frame outside shortest_path: {frame}")
-                return start_point,
-
+        
+        if self.shortest_path is not None:
+            fig, ax = ox.plot_graph_route(self._graph, self.shortest_path,route_color='r',route_linewidth=2,
+                                            ax=ax,save=True,filepath=path_png, node_size=0, show=False, close=False)
         # Animate the movement along the path
-        self._animation = FuncAnimation(fig, update, frames=len(shortest_path), interval=500, repeat=True)
+        self._animation = FuncAnimation(fig, self.manoeuvre.manoeuvre, frames=len(self.shortest_path)+1, interval=10000, repeat=True)
         # Save the animation
         path_gif = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../../"))}/path_animation.gif'
-        self._animation.save(path_gif, writer='Pillow')
+        self._animation.save(path_gif, writer='pillow')
         
         # Show the plot
         plt.show()
-
 
     def log(self):
         try:
