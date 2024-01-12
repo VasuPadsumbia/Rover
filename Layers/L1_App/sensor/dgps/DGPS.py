@@ -1,4 +1,4 @@
-import os, argparse
+import os
 from sbp.client.drivers.network_drivers import TCPDriver
 from sbp.client import Handler, Framer
 from sbp.navigation import *

@@ -4,12 +4,12 @@ from Layers.L1_App.sensor.dgps.DGPS import connect_pksi_dgps
 from json.decoder import JSONDecodeError
 
 
-""" try:
+try:
     gps = connect_pksi_dgps()
     print(f'Getting Longitudenal and Latitude data: {gps.get_data()}')
     print(f'Logging Longitudenal and Latitude data: {gps.log()}')
 except KeyboardInterrupt:
-    pass """ 
+    pass 
 
 
 config_path = f'{os.path.abspath(os.path.dirname(__file__))}/Layers/L2_Data/gps_data.json'

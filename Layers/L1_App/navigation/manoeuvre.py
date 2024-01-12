@@ -1,12 +1,13 @@
-import os, math, sys, numpy as np, matplotlib.pyplot as plt
-import re
+import math
+import time
 from tkinter import N, Y
 from turtle import position
-from matplotlib.pylab import f
 from re import L
 from json.decoder import JSONDecodeError
-import json, time
-
+import json
+from Layers.L1_App.sensor.dgps.DGPS import connect_pksi_dgps
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 class Target_manoeuvre():
     def __init__(self, speed, map_path, graph, shortest_path, start_point=None):
         self.speed = speed
@@ -18,7 +19,8 @@ class Target_manoeuvre():
         self.start_point = start_point
         self._graph = graph
         self.shortest_path = shortest_path
-
+        self.route = []
+        self.gps = connect_pksi_dgps()
         #self.heading = self.calculate_heading() #add heading from magnetometer
         self.distances = [self.distance(self._graph.nodes[u]['y'], self._graph.nodes[u]['x'],
                                                  self._graph.nodes[v]['y'], self._graph.nodes[v]['x'])
@@ -142,7 +144,7 @@ class Target_manoeuvre():
             #target_position = self.get_target_position()
             distance_to_target = round(self.distance(x_current, y_current, x_next, y_next))
             print("Distance to target:", distance_to_target)
-            while distance_to_target is not None:
+            while True:
                 if distance_to_target <= 0.1:
                     print("Reached target position")
                     break
@@ -189,10 +191,86 @@ class Target_manoeuvre():
                     json.dump(data_JSON, write_file) """
                 self.start_point.set_data(x_current, y_current)
                 return self.start_point,
+    def manoeuvre_plot(self):
+        # Initialize the PID controller parameters
+        Kp = 0.5
+        Ki = 0.5
+        Kd = 0.0
 
-    def set_pid_parameters(self, Kp, Ki, Kd):
-        # Set the PID controller parameters
-        self.Kp = Kp
-        self.Ki = Ki
-        self.Kd = Kd
+        integral = 0
+        previous_error = 0
+
+        #current_position = self.get_current_position()
+        
+        for i in range(len(self.shortest_path) - 4):
+
+            current_node = self.shortest_path[i]
+            next_node = self.shortest_path[i + 1]
+            x_current, y_current = self._graph.nodes[current_node]['x'], self._graph.nodes[current_node]['y']
+            print("Current Position:", x_current, y_current)
+            x_next, y_next = self._graph.nodes[next_node]['x'], self._graph.nodes[next_node]['y']
+            print("Next Position:", x_next, y_next)
+            self.heading = self.calculate_initial_compass_bearing((x_current,y_current), (x_next,y_next))   
+            while True:
+                #target_position = self.get_target_position()
+                distance_to_target = round(self.distance(x_current, y_current, x_next, y_next))
+                print("Distance to target:", distance_to_target)
+            
+                if distance_to_target <= 5:
+                    print("Reached target position")
+                    break                    
+                # Calculate the bearing to the target position
+                bearing_to_target = self.calculate_initial_compass_bearing((x_current,y_current), (x_next,y_next))
+
+                # Calculate the error as the difference between the target bearing and the current heading
+                error = (bearing_to_target - self.heading + 180) % 360 - 180
+                #if error > 180:
+                 #   error -= 360
+
+                # Calculate the integral and derivative of the error
+                integral += error
+                derivative = error - previous_error
+
+                # Use the PID controller to calculate the turning angle
+                turning_angle = round((Kp * error + Ki * integral + Kd * derivative))
+                print("Turning Angle:", turning_angle)
+
+                # Update the heading
+                self.heading += turning_angle
+                self.heading = round(self.heading,6)
+                print("Heading:", self.heading)
+
+                # Calculate the step size based on the speed and the distance to the target
+                step_size = min(self.speed, distance_to_target)
+                print("Step Size:", step_size)
+
+                # Update current position based on speed and heading
+                x_current += (step_size * math.cos(math.radians(self.heading)))
+                y_current += (step_size * math.sin(math.radians(self.heading)))
+                #current_position = [round(coord, 6) for coord in current_position]
+                self.route.append((x_current, y_current))
+                print("Current Position:", x_current, y_current)
+                time.sleep(0.1)
+        print("Route:", self.route)        
+    
+    def plot_route(self):
+        self.manoeuvre_plot()
+        # Unzip the route into X and Y coordinates
+        X, Y = zip(*self.route)
+
+        # Create the plot
+        plt.figure()
+        plt.plot(X, Y, 'ro-')
+
+        # Show the plot
+        plt.show()
+
+        
+    def gps_data(self):
+        try:
+            self.lat, self.lon, self.height = self.gps.get_data()
+        except JSONDecodeError as e:
+            print("Failed to read JSON, return code %d\n", e) 
+            return None
+        
         

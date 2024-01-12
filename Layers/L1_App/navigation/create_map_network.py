@@ -1,14 +1,14 @@
 from calendar import c
 import osmnx as ox
 import networkx as nx
-import os, json
-import matplotlib
+import os, json, matplotlib
+import threading
 import matplotlib.pyplot as plt
 matplotlib.use('Qt5Agg')
-from matplotlib.animation import FuncAnimation
-from Layers.L1_App.navigation.navigation import MapNavigator
+from matplotlib.animation import FuncAnimation, PillowWriter
 import Layers.L1_App.navigation.manoeuvre as manoeuvre
 from helper import map_coordinate_path
+from Layers.L1_App.sensor.dgps.DGPS import connect_pksi_dgps
 class MapHandler():
     def __init__(self, type, destination, place_name=None, coordinates=[]) -> None:
         
@@ -23,13 +23,13 @@ class MapHandler():
             nodes = number of turnes for rover to travel till destination
         """
         self.path = map_coordinate_path()
-        
         self._network_type = type
         self._destination = destination
         self._animation = None
         self.nodes = 0
         self.coordinates = []
         self.start_point = None
+        self.current = None
         self.initial_location = coordinates
         self._footprints = None
         self.shortest_path = None
@@ -37,7 +37,7 @@ class MapHandler():
             self._path_graphml = self.create_street_network_point(coordinates)
         elif place_name:
             self._path_graphml = self.create_street_network_place(place_name)
-
+        self.gps = connect_pksi_dgps()
         self.dummy = self.get_coordinates_from_json()
         self._graph = self.create_area_graph()
         
@@ -242,31 +242,48 @@ class MapHandler():
         general_footprints = footprints[(footprints['tourism'].isnull()) & (footprints['natural'].isnull())]
         footprints.plot(ax=ax, alpha=0.7)
         # Highlight your location node
-        your_location_node = self._graph.nodes[69]
-        self.start_point, = ax.plot(your_location_node['x'], your_location_node['y'], 'bo', markersize=10, label='Start Point')
+        #your_location_node = self._graph.nodes[69]
+        #self.start_point, = ax.plot(your_location_node['x'], your_location_node['y'], 'bo', markersize=10, label='Start Point')
         #ax.scatter(your_location_node["x"], your_location_node["y"], c="cyan", s=50, zorder=5, label="Your Location")
-        #ax.scatter(y=current_position[0], x=current_position[1], c="orange", s=50, zorder=5, label="Current Location")
+        
+        #plot gps location marker
+        self.lat, self.lon, self.height = self.gps.get_data()
+        self.current, = ax.plot(self.lon, self.lat, 'bo', markersize=10, label='Current Location')
+        
         ax.legend()
         #ox.plot_graph_route(self._graph, self.find_shortest_path_between_two_points(), route_color='r', route_linewidth=2, ax=ax, save=True,filepath=f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../"))}/L2_Data/map.png')
         self.shortest_path=self.find_shortest_path_between_two_points()
-        self._map_navigator = MapNavigator(self._graph,self.shortest_path, self.start_point)
-        self._map_navigator.navigate()
+        #self._map_navigator = MapNavigator(self._graph,self.shortest_path, self.start_point)
+        #self._map_navigator.navigate()
         self.manoeuvre = manoeuvre.Target_manoeuvre(0.0001, self.path, self._graph, self.shortest_path, self.start_point)
-        
-        print(len(self.shortest_path))
+        #print(len(self.shortest_path))
         path_png = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../"))}/L2_Data/map.png'
+        def gps_update(i):
+            self.lat, self.lon, self.height = self.gps.get_data()
+            self.current.set_data(self.lon, self.lat)
+            return self.current,        
         
         if self.shortest_path is not None:
             fig, ax = ox.plot_graph_route(self._graph, self.shortest_path,route_color='r',route_linewidth=2,
                                             ax=ax,save=True,filepath=path_png, node_size=0, show=False, close=False)
-        # Animate the movement along the path
-        self._animation = FuncAnimation(fig, self.manoeuvre.manoeuvre, frames=len(self.shortest_path)+1, interval=10000, repeat=True)
-        # Save the animation
-        path_gif = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../../"))}/path_animation.gif'
-        self._animation.save(path_gif, writer='pillow')
         
-        # Show the plot
-        plt.show()
+        # Animate the movement along the path
+        #self._animation = FuncAnimation(fig, self.manoeuvre.manoeuvre, frames=len(self.shortest_path)*2, interval=1500, repeat=True)
+        
+        # Animate the current gps location
+        self._animation = FuncAnimation(fig, gps_update, frames=100, interval=200, repeat=False) 
+        #self.manoeuvre.plot_route()
+        
+        # Create and start the threads for saving the animation and showing the plot
+        save_thread = threading.Thread(target=self.save_animation)
+        show_thread = threading.Thread(target=self.show_plot)
+        # Start the threads
+        save_thread.start()
+        show_thread.start()
+        
+        # Wait for both threads to finish
+        save_thread.join()
+        show_thread.join()
 
     def log(self):
         try:
@@ -295,6 +312,31 @@ class MapHandler():
                 lon = data['lon']
                 coordinates = [lat, lon]
                 return coordinates
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return None
+
+    def get_gps_data(self):
+
+        try:
+            self.lat, self.lon, self.height = self.gps.get_data()
+            return self.lat, self.lon, self.height
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return None
+        
+    def save_animation(self):
+        try:
+            path_gif = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../../"))}/path_animation.gif'
+            writer = PillowWriter(fps=30) 
+            self._animation.save(path_gif, writer=writer)
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return None
+        
+    def show_plot(self):
+        try:
+            plt.show()
         except Exception as e:
             print(f"An error occurred: {e}")
             return None
