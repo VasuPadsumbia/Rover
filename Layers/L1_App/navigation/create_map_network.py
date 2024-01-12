@@ -242,13 +242,13 @@ class MapHandler():
         general_footprints = footprints[(footprints['tourism'].isnull()) & (footprints['natural'].isnull())]
         footprints.plot(ax=ax, alpha=0.7)
         # Highlight your location node
-        #your_location_node = self._graph.nodes[69]
-        #self.start_point, = ax.plot(your_location_node['x'], your_location_node['y'], 'bo', markersize=10, label='Start Point')
+        your_location_node = self._graph.nodes[69]
+        self.start_point, = ax.plot(your_location_node['x'], your_location_node['y'], 'bo', markersize=10, label='Start Point')
         #ax.scatter(your_location_node["x"], your_location_node["y"], c="cyan", s=50, zorder=5, label="Your Location")
         
         #plot gps location marker
-        self.lat, self.lon, self.height = self.gps.get_data()
-        self.current, = ax.plot(self.lon, self.lat, 'bo', markersize=10, label='Current Location')
+        #self.lat, self.lon, self.height = self.gps.get_data()
+        #self.current, = ax.plot(self.lon, self.lat, 'bo', markersize=10, label='Current Location')
         
         ax.legend()
         #ox.plot_graph_route(self._graph, self.find_shortest_path_between_two_points(), route_color='r', route_linewidth=2, ax=ax, save=True,filepath=f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../"))}/L2_Data/map.png')
@@ -268,12 +268,13 @@ class MapHandler():
                                             ax=ax,save=True,filepath=path_png, node_size=0, show=False, close=False)
         
         # Animate the movement along the path
-        #self._animation = FuncAnimation(fig, self.manoeuvre.manoeuvre, frames=len(self.shortest_path)*2, interval=1500, repeat=True)
+        self._animation = FuncAnimation(fig, self.manoeuvre.manoeuvre, frames=len(self.shortest_path)*2, interval=1500, repeat=True)
         
         # Animate the current gps location
-        self._animation = FuncAnimation(fig, gps_update, frames=100, interval=200, repeat=False) 
+        #self._animation = FuncAnimation(fig, gps_update, frames=100, interval=200, repeat=False) 
         #self.manoeuvre.plot_route()
-        
+        #self.show_plot()
+        #self.save_animation()
         # Create and start the threads for saving the animation and showing the plot
         save_thread = threading.Thread(target=self.save_animation)
         show_thread = threading.Thread(target=self.show_plot)
@@ -329,7 +330,7 @@ class MapHandler():
         try:
             path_gif = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../../"))}/path_animation.gif'
             writer = PillowWriter(fps=30) 
-            self._animation.save(path_gif, writer=writer)
+            self._animation.save(path_gif, writer='pillow')
         except Exception as e:
             print(f"An error occurred: {e}")
             return None

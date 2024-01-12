@@ -141,10 +141,11 @@ class Target_manoeuvre():
             x_current, y_current = self._graph.nodes[current_node]['x'], self._graph.nodes[current_node]['y']
             x_next, y_next = self._graph.nodes[next_node]['x'], self._graph.nodes[next_node]['y']
             
-            #target_position = self.get_target_position()
-            distance_to_target = round(self.distance(x_current, y_current, x_next, y_next))
-            print("Distance to target:", distance_to_target)
+            
             while True:
+                #target_position = self.get_target_position()
+                distance_to_target = round(self.distance(x_current, y_current, x_next, y_next))
+                print("Distance to target:", distance_to_target)
                 if distance_to_target <= 0.1:
                     print("Reached target position")
                     break
@@ -191,6 +192,7 @@ class Target_manoeuvre():
                     json.dump(data_JSON, write_file) """
                 self.start_point.set_data(x_current, y_current)
                 return self.start_point,
+    
     def manoeuvre_plot(self):
         # Initialize the PID controller parameters
         Kp = 0.5
