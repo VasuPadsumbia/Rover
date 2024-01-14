@@ -275,9 +275,12 @@ class MapHandler():
         #self.manoeuvre.plot_route()
         #self.show_plot()
         #self.save_animation()
+        
+        # Create a lock
+        lock = threading.Lock()
         # Create and start the threads for saving the animation and showing the plot
-        save_thread = threading.Thread(target=self.save_animation)
-        show_thread = threading.Thread(target=self.show_plot)
+        save_thread = threading.Thread(target=self.save_animation, args = (lock,))
+        show_thread = threading.Thread(target=self.show_plot, args = (lock,))
         # Start the threads
         save_thread.start()
         show_thread.start()
@@ -326,18 +329,20 @@ class MapHandler():
             print(f"An error occurred: {e}")
             return None
         
-    def save_animation(self):
-        try:
-            path_gif = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../../"))}/path_animation.gif'
-            writer = PillowWriter(fps=30) 
-            self._animation.save(path_gif, writer='pillow')
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            return None
+    def save_animation(self, lock):
+        with lock:
+            try:
+                path_gif = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../../"))}/path_animation.gif'
+                writer = PillowWriter(fps=30) 
+                self._animation.save(path_gif, writer=writer)
+            except Exception as e:
+                print(f"An error occurred: {e}")
+                return None
         
-    def show_plot(self):
-        try:
-            plt.show()
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            return None
+    def show_plot(self, lock):
+        with lock:
+            try:
+                plt.show()
+            except Exception as e:
+                print(f"An error occurred: {e}")
+                return None
