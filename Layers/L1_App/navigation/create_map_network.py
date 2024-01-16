@@ -9,6 +9,8 @@ from matplotlib.animation import FuncAnimation, PillowWriter
 import Layers.L1_App.navigation.manoeuvre as manoeuvre
 from helper import map_coordinate_path
 from Layers.L1_App.sensor.dgps.DGPS import connect_pksi_dgps
+import base64
+from IPython.display import HTML
 class MapHandler():
     def __init__(self, type, destination, place_name=None, coordinates=[]) -> None:
         
@@ -40,6 +42,7 @@ class MapHandler():
         self.gps = connect_pksi_dgps()
         self.dummy = self.get_coordinates_from_json()
         self._graph = self.create_area_graph()
+        
         
     def create_street_network_place(self, place_name):
         
@@ -273,21 +276,21 @@ class MapHandler():
         # Animate the current gps location
         #self._animation = FuncAnimation(fig, gps_update, frames=100, interval=200, repeat=False) 
         #self.manoeuvre.plot_route()
-        #self.show_plot()
-        #self.save_animation()
+        self.show_plot()
+        self.save_animation()
         
         # Create a lock
-        lock = threading.Lock()
+        #lock = threading.Lock()
         # Create and start the threads for saving the animation and showing the plot
-        save_thread = threading.Thread(target=self.save_animation, args = (lock,))
-        show_thread = threading.Thread(target=self.show_plot, args = (lock,))
+        #save_thread = threading.Thread(target=self.save_animation, args = (lock,))
+        #show_thread = threading.Thread(target=self.show_plot, args = (lock,))
         # Start the threads
-        save_thread.start()
-        show_thread.start()
+        #save_thread.start()
+        #show_thread.start()
         
         # Wait for both threads to finish
-        save_thread.join()
-        show_thread.join()
+        #save_thread.join()
+        #show_thread.join()
 
     def log(self):
         try:
@@ -307,6 +310,18 @@ class MapHandler():
         except Exception as e:
             print(f"An error occurred: {e}")
 
+    def log_coordinates(self):
+        try:
+            #location = [{'Point': i // 2 + 1 'latitude': self.coordinates[i], 'longitude': self.coordinates[i+1]}]for i in range(0, len(self.cordinates), 2)
+            data_JSON = [self.coordinates[i:i+2] for i in range(0, len(self.coordinates), 2)]
+            print(data_JSON)
+            path = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../"))}/L2_Data/coordinates.json'
+            #self.coordinates[['x', 'y', 'elevation']].to_json(path, orient='records', lines=True)
+            with open(path, "w") as write_file:
+                json.dump(data_JSON, write_file)
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
     def get_coordinates_from_json(self):
         try:
             path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../L2_Data/gps_dummy.json"))
@@ -329,18 +344,32 @@ class MapHandler():
             print(f"An error occurred: {e}")
             return None
         
-    def save_animation(self, lock):
-        with lock:
+    def save_animation(self):
             try:
+                # Convert the animation to HTML5 video format
+                self.html5_video = self._animation.to_html5_video()
+                # Embed the video in an HTML string
+                self.html_string = f"""
+                <html>
+                <body>
+                <video width="320" height="240" controls>
+                  <source src="data:video/mp4;base64,{base64.b64encode(self.html5_video.encode()).decode()}" type="video/mp4">
+                </video>
+                </body>
+                </html>
+                """
                 path_gif = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../../"))}/path_animation.gif'
                 writer = PillowWriter(fps=30) 
                 self._animation.save(path_gif, writer=writer)
+                # Write the HTML string to a file
+                path_html = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../../"))}/path_animation.html'
+                with open(path_html, 'w') as f:
+                    f.write(self.html_string)
             except Exception as e:
                 print(f"An error occurred: {e}")
                 return None
         
-    def show_plot(self, lock):
-        with lock:
+    def show_plot(self):
             try:
                 plt.show()
             except Exception as e:
