@@ -1,51 +1,49 @@
-import math
-import time
-from tkinter import N, Y
-from turtle import position
-from re import L
+import math, time, json
 from json.decoder import JSONDecodeError
-import json
+from tkinter import N
 from Layers.L1_App.sensor.dgps.DGPS import connect_pksi_dgps
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
+from Layers.L1_App.sensor.imu.gyroscpe import connect_pksi_INS
 class Target_manoeuvre():
     def __init__(self, speed, map_path, graph, shortest_path, start_point=None):
         self.speed = speed
         self.path = map_path
         self.map_coordinates = self.get_coordinates()
-        self.target_position = self.get_target_position()
-        self.current_position = self.get_current_position()
-        self.heading = self.get_heading()
+        self.target_position = None
+        self.current_position = None
+        self.heading = self.get_heading_virtual()
         self.start_point = start_point
         self._graph = graph
         self.shortest_path = shortest_path
         self.route = []
         self.gps = connect_pksi_dgps()
-        #self.heading = self.calculate_heading() #add heading from magnetometer
+        self.ins = connect_pksi_INS()
+        #self.heading = self.get_heading_from_sensor() #add heading from magnetometer
         self.distances = [self.distance(self._graph.nodes[u]['y'], self._graph.nodes[u]['x'],
                                                  self._graph.nodes[v]['y'], self._graph.nodes[v]['x'])
                           for u, v in zip(self.shortest_path[:-1], self.shortest_path[1:])]
-    def get_coordinates(self):    
+    def get_coordinates(self):
             try:
                 with open(self.path, "r") as config_file:
                     data = json.load(config_file)
+                    coordinates = data['data']
                     config_file.close()
-                    return data
+                    return coordinates
             except JSONDecodeError as e:
                 print("Failed to read JSON, return code %d\n", e) 
                 return None
             
-    def get_target_position(self):
+    def get_target_position(self,i):
         if self.map_coordinates is not None:
-            target_position = [round(self.map_coordinates["Point 2"]["Latitude"],6), round(self.map_coordinates["Point 2"]["Longitude"],6)]
+            target_position = self.map_coordinates[i]
             print(f"target_position: {target_position}")
             return target_position
         else:
             return None, None
     
-    def get_current_position(self):
+    def get_current_position(self,i):
         if self.map_coordinates is not None:
-            current_position = [round(self.map_coordinates["Point 1"]["Latitude"],6), round(self.map_coordinates["Point 1"]["Longitude"],6)]
+            current_position = self.map_coordinates[i]
             print(f"current_position: {current_position}")
             return current_position
         else:
@@ -69,8 +67,8 @@ class Target_manoeuvre():
         d = R * c * 1000
         return d
     
-    def get_heading(self):
-        """Returns the heading to the target"""
+    def get_heading_virtual(self):
+        """Returns the simulated heading based on the current and target position"""
 
         if self.target_position is not None and self.current_position is not None:
             heading = self.calculate_initial_compass_bearing(self.current_position, self.target_position)
@@ -105,23 +103,19 @@ class Target_manoeuvre():
         """Returns the turning angle required to reach the target"""
         #should be used with sensor data
         if self.heading is not None:
-            turning_angle = self.heading - self.get_heading()
+            turning_angle = self.heading - self.get_heading_virtual()
             return turning_angle
         else:
             return None
 
-    def calculate_heading(magnetometer_x, magnetometer_y):
+    def get_heading_from_sensor(self):
         """Returns the heading based on magnetometer data
         Should be used with sensor data"""
-        heading = math.atan2(magnetometer_y, magnetometer_x)
-        heading = math.degrees(heading)
-        if heading < 0:
-            heading += 360
+        heading = self.ins.get_heading()
         return heading
     
     def get_speed(self):
         return self.speed
-
 
     def manoeuvre(self, frame):
         # Initialize the PID controller parameters
@@ -267,7 +261,6 @@ class Target_manoeuvre():
         # Show the plot
         plt.show()
 
-        
     def gps_data(self):
         try:
             self.lat, self.lon, self.height = self.gps.get_data()

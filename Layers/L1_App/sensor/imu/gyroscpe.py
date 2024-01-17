@@ -1,12 +1,15 @@
 import os, argparse
+from tkinter import N
 from sbp.client.drivers.network_drivers import TCPDriver
 from sbp.client import Handler, Framer
 from json.decoder import JSONDecodeError
 import json, math
 from sbp.mag import SBP_MSG_MAG_RAW
+from sbp.imu import SBP_MSG_IMU_RAW
+import math
 
 
-class connect_pksi_gyroscope():
+class connect_pksi_INS():
 
     def __init__(self) -> None:
 
@@ -19,7 +22,10 @@ class connect_pksi_gyroscope():
         self.mag_x_ = 0.0
         self.mag_y_ = 0.0
         self.mag_z_ = 0.0
-        
+        self.acc_x_ = 0.0
+        self.acc_y_ = 0.0
+        self.acc_z_ = 0.0
+        self.heading_deg = 0.0
         self.config_path = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../../.."))}/Configure.json'
         
 
@@ -33,7 +39,7 @@ class connect_pksi_gyroscope():
         except JSONDecodeError as e:
             print("Failed to read JSON, return code %d\n", e)
 
-    def get_data(self):
+    def get_mag_data(self):
         # Open a connection to Piksi using TCP
         with TCPDriver(self.IP_add, self.port) as driver:
             with Handler(Framer(driver.read, None, verbose=True)) as source:
@@ -55,44 +61,74 @@ class connect_pksi_gyroscope():
                           "Magnetometer Y : %.4f,"
                           "Magnetometer Z : %.4f"
                             % (self.mag_x_, self.mag_y_, self.mag_z_))
-
+                    return self.mag_x_, self.mag_y_, self.mag_z_
                 except KeyboardInterrupt:
                     raise NotImplementedError("Sensor data not obtained")
 
+    def get_acc_data(self):
+        # Open a connection to Piksi using TCP
+        with TCPDriver(self.IP_add, self.port) as driver:
+            with Handler(Framer(driver.read, None, verbose=True)) as source:
+                print(f'Connection Eshtablished for piksi at IP {self.IP_add}')
+
+                ''' Getting data'''
+                try:
+
+                    msg, metadata = next(source.filter([SBP_MSG_IMU_RAW]),(None,None))
+                    if msg is not None:
+                        print(f'Data Recieving from piksi at IP {msg.sender}')
+                        self.acc_x_= msg.acc_x * 1e-3
+                        self.acc_y_= msg.acc_y * 1e-3
+                        self.acc_z_= msg.acc_z * 1e-3
+                        
+                    self.log()
+                    # Print out the Acceleration in X, Y, Z directions of the rover
+                    print("Acceleration X : %.4f,"
+                          "Acceleration Y : %.4f,"
+                          "Acceleration Z : %.4f"
+                            % (self.acc_x_, self.acc_y_, self.acc_z_))
+                    return self.acc_x_, self.acc_y_, self.acc_z_
+                except KeyboardInterrupt:
+                    raise NotImplementedError("Sensor data not obtained")
     def log(self):
         data_JSON =  {
             "mag_x": self.mag_x_,
             "mag_y": self.mag_y_,
-            "mag_z": self.mag_z_
+            "mag_z": self.mag_z_,
+            "acc_x": self.acc_x_,
+            "acc_y": self.acc_y_,
+            "acc_z": self.acc_z_
         }
         with open(f'{os.path.abspath(
             os.path.join(
                 os.path.dirname(__file__),"../../.."))}/L2_Data/gyro_data.json', "w") as write_file:
             json.dump(data_JSON, write_file)
     
+    def get_heading(self):
+        # Get accelerometer and magnetometer data
+        self.get_acc_data()
+        self.get_mag_data()
 
-    def calculate_orientation(device_latitude, device_longitude, map_orientation):
-        # Calculate the azimuth angle between the device and a reference point on the map
-        map_reference_latitude =  # Latitude of a reference point on the map
-        map_reference_longitude =  # Longitude of a reference point on the map
+        # Calculate the pitch and roll angles
+        pitch = math.atan2(self.acc_y_, math.sqrt(self.acc_x_**2 + self.acc_z_**2))
+        roll = math.atan2(-self.acc_x_, self.acc_z_)
 
-        # Calculate the difference in longitude
-        delta_longitude = device_longitude - map_reference_longitude
+        # Compensate the magnetometer readings for the pitch and roll
+        mag_x_comp = self.mag_x_ * math.cos(pitch) + self.mag_z_ * math.sin(pitch)
+        mag_y_comp = self.mag_x_ * math.sin(roll) * math.sin(pitch) + self.mag_y_ * math.cos(roll) - self.mag_z_ * math.sin(roll) * math.cos(pitch)
 
-        # Calculate the azimuth angle (bearing) between the two points
-        azimuth_angle = math.atan2(
-            math.sin(math.radians(delta_longitude)),
-            math.cos(math.radians(map_reference_latitude)) * math.tan(math.radians(device_latitude)) -
-            math.sin(math.radians(map_reference_latitude)) * math.cos(math.radians(delta_longitude))
-        )
+        # Calculate the heading
+        heading_rad = math.atan2(mag_y_comp, mag_x_comp)
+        self.heading_deg = math.degrees(heading_rad)
 
-        # Convert the azimuth angle to degrees
-        azimuth_angle_degrees = math.degrees(azimuth_angle)
+        # Correct for when signs are reversed
+        if self.heading_deg < 0:
+            self.heading_deg += 360
 
-        # Calculate the orientation of the device relative to the map orientation
-        device_orientation = azimuth_angle_degrees - map_orientation
+        # Correct for local magnetic declination
+        declination_angle = 4.16  # replace with local declination angle
+        self.heading_deg += declination_angle
+        if self.heading_deg > 360:
+            self.heading_deg -= 360
 
-        # Adjust the orientation to be in the range [0, 360)
-        device_orientation = (device_orientation + 360) % 360
-
-        return device_orientation
+        return self.heading_deg

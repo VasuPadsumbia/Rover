@@ -271,7 +271,7 @@ class MapHandler():
                                             ax=ax,save=True,filepath=path_png, node_size=0, show=False, close=False)
         
         # Animate the movement along the path
-        self._animation = FuncAnimation(fig, self.manoeuvre.manoeuvre, frames=len(self.shortest_path)*2, interval=1500, repeat=True)
+        self._animation = FuncAnimation(fig, self.manoeuvre.manoeuvre, frames=len(self.shortest_path)*2, interval=1000, repeat=True)
         
         # Animate the current gps location
         #self._animation = FuncAnimation(fig, gps_update, frames=100, interval=200, repeat=False) 
@@ -313,7 +313,8 @@ class MapHandler():
     def log_coordinates(self):
         try:
             #location = [{'Point': i // 2 + 1 'latitude': self.coordinates[i], 'longitude': self.coordinates[i+1]}]for i in range(0, len(self.cordinates), 2)
-            data_JSON = [self.coordinates[i:i+2] for i in range(0, len(self.coordinates), 2)]
+            data = [self.coordinates[i:i+2] for i in range(0, len(self.coordinates), 2)]
+            data_JSON = { 'data' : data}
             print(data_JSON)
             path = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../"))}/L2_Data/coordinates.json'
             #self.coordinates[['x', 'y', 'elevation']].to_json(path, orient='records', lines=True)
@@ -346,25 +347,25 @@ class MapHandler():
         
     def save_animation(self):
             try:
-                # Convert the animation to HTML5 video format
-                self.html5_video = self._animation.to_html5_video()
-                # Embed the video in an HTML string
-                self.html_string = f"""
-                <html>
-                <body>
-                <video width="320" height="240" controls>
-                  <source src="data:video/mp4;base64,{base64.b64encode(self.html5_video.encode()).decode()}" type="video/mp4">
-                </video>
-                </body>
-                </html>
-                """
+                # # Convert the animation to HTML5 video format
+                # self.html5_video = self._animation.to_html5_video()
+                # # Embed the video in an HTML string
+                # self.html_string = f"""
+                # <html>
+                # <body>
+                # <video width="320" height="240" controls>
+                #   <source src="data:video/mp4;base64,{base64.b64encode(self.html5_video.encode()).decode()}" type="video/mp4">
+                # </video>
+                # </body>
+                # </html>
+                # """
                 path_gif = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../../"))}/path_animation.gif'
                 writer = PillowWriter(fps=30) 
-                self._animation.save(path_gif, writer=writer)
+                self._animation.save(path_gif, writer='pillow')
                 # Write the HTML string to a file
-                path_html = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../../"))}/path_animation.html'
-                with open(path_html, 'w') as f:
-                    f.write(self.html_string)
+                #path_html = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../../"))}/path_animation.html'
+                #with open(path_html, 'w') as f:
+                #    f.write(self.html_string)
             except Exception as e:
                 print(f"An error occurred: {e}")
                 return None
