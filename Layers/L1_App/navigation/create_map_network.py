@@ -170,11 +170,11 @@ class MapHandler():
         tree = footprints[footprints['natural'] == 'tree']
         tree.plot(ax=ax, facecolor='green', alpha=0.7, label='tree', aspect='equal')
         
-        #building = footprints[footprints['building'] == 'yes']
-        #building.plot(ax=ax, facecolor='blue', alpha=0.7, label='building', aspect='equal')
+        building = footprints[footprints['building'] == 'yes']
+        building.plot(ax=ax, facecolor='blue', alpha=0.7, label='building', aspect='equal')
 
-        #highway = footprints[footprints['highway'] == 'road']
-        #highway.plot(ax=ax, facecolor='white', alpha=0.7, label='highway', aspect='equal')
+        highway = footprints[footprints['highway'] == 'road']
+        highway.plot(ax=ax, facecolor='white', alpha=0.7, label='highway', aspect='equal')
         #general_footprints = footprints[(footprints['building'].isnull()) & (footprints['highway'].isnull())]
         #general_footprints.plot(ax=ax, facecolor='orange' ,label='buildings', aspect='equal', alpha=0.7)
         footprints.plot(ax=ax, alpha=0.7)
@@ -253,6 +253,7 @@ class MapHandler():
         tree = footprints[footprints['natural'] == 'tree']
         tree.plot(ax=ax, facecolor='green', alpha=0.7, label='tree', aspect='equal')
         
+
         footprints.plot(ax=ax, alpha=0.7)
         # Highlight your location node
         your_location_node = self._graph.nodes[69]
