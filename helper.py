@@ -44,7 +44,7 @@ def map_coordinate_path():
 
         folder1 = os.path.join(CWD, "Layers")
         folder2 = os.path.join(folder1, "L2_Data")
-        map_coordinate_path = os.path.join(folder2, "map_coordinates.json")
+        map_coordinate_path = os.path.join(folder2, "coordinates.json")
         return map_coordinate_path
         
     except OSError as errors :

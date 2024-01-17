@@ -26,7 +26,7 @@ class Target_manoeuvre():
             try:
                 with open(self.path, "r") as config_file:
                     data = json.load(config_file)
-                    coordinates = data['data']
+                    coordinates = data['data'] 
                     config_file.close()
                     return coordinates
             except JSONDecodeError as e:
@@ -117,7 +117,7 @@ class Target_manoeuvre():
     def get_speed(self):
         return self.speed
 
-    def manoeuvre(self, frame):
+    def manoeuvre_simulation(self, frame):
         # Initialize the PID controller parameters
         Kp = 1.0
         Ki = 0.55
@@ -134,7 +134,7 @@ class Target_manoeuvre():
             next_node = self.shortest_path[frame + 1]
             x_current, y_current = self._graph.nodes[current_node]['x'], self._graph.nodes[current_node]['y']
             x_next, y_next = self._graph.nodes[next_node]['x'], self._graph.nodes[next_node]['y']
-            
+            self.heading = self.calculate_initial_compass_bearing((x_current,y_current), (x_next,y_next))
             
             while True:
                 #target_position = self.get_target_position()
@@ -148,44 +148,45 @@ class Target_manoeuvre():
                 bearing_to_target = self.calculate_initial_compass_bearing((x_current,y_current), (x_next,y_next))
 
                 # Calculate the error as the difference between the target bearing and the current heading
-                error = (bearing_to_target - self.heading + 180) % 360 - 180
-                #if error > 180:
-                 #   error -= 360
+                if self.heading is not None:
+                    error = (bearing_to_target - self.heading + 180) % 360 - 180
+                    #if error > 180:
+                     #   error -= 360
 
-                # Calculate the integral and derivative of the error
-                integral += error
-                derivative = error - previous_error
+                    # Calculate the integral and derivative of the error
+                    integral += error
+                    derivative = error - previous_error
 
-                # Use the PID controller to calculate the turning angle
-                turning_angle = round((Kp * error + Ki * integral + Kd * derivative))
-                print("Turning Angle:", turning_angle)
+                    # Use the PID controller to calculate the turning angle
+                    turning_angle = round((Kp * error + Ki * integral + Kd * derivative))
+                    print("Turning Angle:", turning_angle)
 
-                # Update the heading
-                self.heading += turning_angle
-                self.heading = round(self.heading,6)
-                print("Heading:", self.heading)
+                    # Update the heading
+                    self.heading += turning_angle
+                    self.heading = round(self.heading,6)
+                    print("Heading:", self.heading)
 
-                # Calculate the step size based on the speed and the distance to the target
-                step_size = min(self.speed, distance_to_target)
-                print("Step Size:", step_size)
+                    # Calculate the step size based on the speed and the distance to the target
+                    step_size = min(self.speed, distance_to_target)
+                    print("Step Size:", step_size)
 
-                # Update current position based on speed and heading
-                x_current += round((step_size * math.cos(math.radians(self.heading))))
-                y_current += round((step_size * math.sin(math.radians(self.heading))))
-                #current_position = [round(coord, 6) for coord in current_position]  # Round current position to 4 decimal places
+                    # Update current position based on speed and heading
+                    x_current += round((step_size * math.cos(math.radians(self.heading))))
+                    y_current += round((step_size * math.sin(math.radians(self.heading))))
+                    #current_position = [round(coord, 6) for coord in current_position]  # Round current position to 4 decimal places
 
-                print("Current Position:", x_current, y_current)
-                # Update the previous error
-                previous_error = error
-                #time.sleep(0.5)
-                """ data_JSON =  {
-                    "lat": current_position[0],
-                    "lon": current_position[1],        
-                }
-                with open(f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../.."))}/L2_Data/gps_dummy.json', "w") as write_file:
-                    json.dump(data_JSON, write_file) """
-                self.start_point.set_data(x_current, y_current)
-                return self.start_point,
+                    print("Current Position:", x_current, y_current)
+                    # Update the previous error
+                    previous_error = error
+                    #time.sleep(0.5)
+                    """ data_JSON =  {
+                        "lat": current_position[0],
+                        "lon": current_position[1],        
+                    }
+                    with open(f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../.."))}/L2_Data/gps_dummy.json', "w") as write_file:
+                        json.dump(data_JSON, write_file) """
+                    self.start_point.set_data(x_current, y_current)
+                    return self.start_point,
     
     def manoeuvre_plot(self):
         # Initialize the PID controller parameters
@@ -249,6 +250,40 @@ class Target_manoeuvre():
                 time.sleep(0.1)
         print("Route:", self.route)        
     
+    def hardware_manoeuvre(self):
+        if self.map_coordinates is not None:    
+            for i in range(len(self.map_coordinates) - 1):
+                self.target_position = self.get_target_position(i+1)
+                self.current_position = self.get_current_position(i)
+                self.heading = self.get_heading_virtual()
+                self.get_distance()
+                self.get_turning_angle()
+                self.get_heading_from_sensor()
+                self.gps_data()
+                goal_reached = False
+                current_lat = self.current_position[0]
+                current_lon = self.current_position[1]
+                while goal_reached == False:            
+                    # Calculate the distance to move based on speed and time
+                    self.time_interval = 0.1
+                    # Calculate the distance to move based on speed and time
+                    distance = self.get_speed() * self.time_interval
+                    # Calculate the change in latitude and longitude
+                    delta_lat = distance * math.cos(math.radians(self.heading))#change the heading based on sensor data
+                    delta_lon = distance * math.sin(math.radians(self.heading))#change the heading based on sensor data
+                    # Update the current position
+                    current_lat += delta_lat
+                    current_lon += delta_lon
+                    if self.distance(current_lat, current_lon, self.target_position[0], self.target_position[1]) <= 0.1:
+                        goal_reached = True
+                    # Print the updated location
+                    print("Updated Location: Latitude =", current_lat, "Longitude =", current_lon)
+                time.sleep(0.1)
+                self.map_coordinates.pop(0)
+        else:
+            return None, None
+        
+        
     def plot_route(self):
         self.manoeuvre_plot()
         # Unzip the route into X and Y coordinates

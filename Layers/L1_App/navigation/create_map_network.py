@@ -1,9 +1,14 @@
 from calendar import c
+from operator import ge
+from turtle import hideturtle
 import osmnx as ox
 import networkx as nx
 import os, json, matplotlib
 import threading
 import matplotlib.pyplot as plt
+from scipy.datasets import face
+
+from distutils.command import build
 matplotlib.use('Qt5Agg')
 from matplotlib.animation import FuncAnimation, PillowWriter
 import Layers.L1_App.navigation.manoeuvre as manoeuvre
@@ -165,7 +170,13 @@ class MapHandler():
         tree = footprints[footprints['natural'] == 'tree']
         tree.plot(ax=ax, facecolor='green', alpha=0.7, label='tree', aspect='equal')
         
-        general_footprints = footprints[(footprints['tourism'].isnull()) & (footprints['natural'].isnull())]
+        #building = footprints[footprints['building'] == 'yes']
+        #building.plot(ax=ax, facecolor='blue', alpha=0.7, label='building', aspect='equal')
+
+        #highway = footprints[footprints['highway'] == 'road']
+        #highway.plot(ax=ax, facecolor='white', alpha=0.7, label='highway', aspect='equal')
+        #general_footprints = footprints[(footprints['building'].isnull()) & (footprints['highway'].isnull())]
+        #general_footprints.plot(ax=ax, facecolor='orange' ,label='buildings', aspect='equal', alpha=0.7)
         footprints.plot(ax=ax, alpha=0.7)
         # Highlight your location node
         your_location_node = self._graph.nodes[69]
@@ -233,7 +244,7 @@ class MapHandler():
         
         fig, ax = ox.plot_graph(self._graph, bgcolor="k", show=False, close=False)
         
-        tags = {'building':True,'highway':'road', 'natural': True ,'tourism':'college'}
+        tags = {'building':True,'highway':'road', 'natural': True }
         # Plot footprints on the same plot
         footprints = self.create_footprints(tags) 
         college = footprints[footprints['tourism'] == 'museum']
@@ -242,7 +253,6 @@ class MapHandler():
         tree = footprints[footprints['natural'] == 'tree']
         tree.plot(ax=ax, facecolor='green', alpha=0.7, label='tree', aspect='equal')
         
-        general_footprints = footprints[(footprints['tourism'].isnull()) & (footprints['natural'].isnull())]
         footprints.plot(ax=ax, alpha=0.7)
         # Highlight your location node
         your_location_node = self._graph.nodes[69]
@@ -271,7 +281,7 @@ class MapHandler():
                                             ax=ax,save=True,filepath=path_png, node_size=0, show=False, close=False)
         
         # Animate the movement along the path
-        self._animation = FuncAnimation(fig, self.manoeuvre.manoeuvre, frames=len(self.shortest_path)*2, interval=1000, repeat=True)
+        self._animation = FuncAnimation(fig, self.manoeuvre.manoeuvre_simulation, frames=len(self.shortest_path), interval=1000, repeat=True)
         
         # Animate the current gps location
         #self._animation = FuncAnimation(fig, gps_update, frames=100, interval=200, repeat=False) 
