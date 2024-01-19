@@ -1,4 +1,5 @@
 import os
+from matplotlib import pyplot as plt
 from sbp.client.drivers.network_drivers import TCPDriver
 from sbp.client import Handler, Framer
 from sbp.navigation import *
@@ -54,12 +55,12 @@ class connect_pksi_dgps():
                     msg_list = [SBP_MSG_BASELINE_NED, SBP_MSG_POS_LLH,
                                     SBP_MSG_VEL_NED, SBP_MSG_GPS_TIME]
 
-                    print("  This position solution message reports the absolute geodetic coordinates and" 
-                              " the status (single point vs pseudo-absolute RTK) of the position solution."
-                               "If the rover receiver knows the surveyed position of the base station and"
-                               "has an RTK solution, this reports a pseudo-absolute position solution using"
-                               "the base station position and the rover's RTK baseline vector. The full GPS"
-                               "time is given by the preceding MSG_GPS_TIME with the matching time-of-week(tow)")
+                    # print("  This position solution message reports the absolute geodetic coordinates and" 
+                    #           " the status (single point vs pseudo-absolute RTK) of the position solution."
+                    #            "If the rover receiver knows the surveyed position of the base station and"
+                    #            "has an RTK solution, this reports a pseudo-absolute position solution using"
+                    #            "the base station position and the rover's RTK baseline vector. The full GPS"
+                    #            "time is given by the preceding MSG_GPS_TIME with the matching time-of-week(tow)")
                     
                     for msg_type in msg_list:
                         msg, metadata = next(source.filter([msg_type]),(None,None))
@@ -67,7 +68,7 @@ class connect_pksi_dgps():
                         #print("Latitude: %.4f, Longitude: %.4f" % (msg.lat , msg.lon )
                         
                         if msg is not None:
-                            print(f'Data Receiving from Piksi at IP {msg.sender}')
+                            # print(f'Data Receiving from Piksi at IP {msg.sender}')
                             
                             # LLH position in deg-deg-m
                             if msg.msg_type == 522:
@@ -133,3 +134,14 @@ class connect_pksi_dgps():
             os.path.join(
                 os.path.dirname(__file__),"../../.."))}/L2_Data/gps_data.json', "w") as write_file:
             json.dump(data_JSON, write_file)
+
+    def plot_gps(self):
+        while True:
+            try:
+                self.get_data()
+                plt.scatter(self.lon, self.lat, s=1)
+                plt.pause(0.1)
+                plt.show()    
+            except KeyboardInterrupt:
+                pass
+        

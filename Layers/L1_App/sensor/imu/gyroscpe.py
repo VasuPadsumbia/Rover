@@ -57,10 +57,10 @@ class connect_pksi_INS():
                         
                     self.log()
                     # Print out the Acceleration in X, Y, Z directions of the rover
-                    print("Magnetometer X : %.4f, "
-                          "Magnetometer Y : %.4f,"
-                          "Magnetometer Z : %.4f"
-                            % (self.mag_x_, self.mag_y_, self.mag_z_))
+                    # print("Magnetometer X : %.4f, "
+                    #       "Magnetometer Y : %.4f,"
+                    #       "Magnetometer Z : %.4f"
+                    #         % (self.mag_x_, self.mag_y_, self.mag_z_))
                     return self.mag_x_, self.mag_y_, self.mag_z_
                 except KeyboardInterrupt:
                     raise NotImplementedError("Sensor data not obtained")
@@ -69,7 +69,7 @@ class connect_pksi_INS():
         # Open a connection to Piksi using TCP
         with TCPDriver(self.IP_add, self.port) as driver:
             with Handler(Framer(driver.read, None, verbose=True)) as source:
-                print(f'Connection Eshtablished for piksi at IP {self.IP_add}')
+                # print(f'Connection Eshtablished for piksi at IP {self.IP_add}')
 
                 ''' Getting data'''
                 try:
@@ -83,10 +83,10 @@ class connect_pksi_INS():
                         
                     self.log()
                     # Print out the Acceleration in X, Y, Z directions of the rover
-                    print("Acceleration X : %.4f,"
-                          "Acceleration Y : %.4f,"
-                          "Acceleration Z : %.4f"
-                            % (self.acc_x_, self.acc_y_, self.acc_z_))
+                    # print("Acceleration X : %.4f,"
+                    #       "Acceleration Y : %.4f,"
+                    #       "Acceleration Z : %.4f"
+                    #         % (self.acc_x_, self.acc_y_, self.acc_z_))
                     return self.acc_x_, self.acc_y_, self.acc_z_
                 except KeyboardInterrupt:
                     raise NotImplementedError("Sensor data not obtained")

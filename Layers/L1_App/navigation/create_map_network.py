@@ -8,7 +8,7 @@ import threading
 import matplotlib.pyplot as plt
 from scipy.datasets import face
 
-from distutils.command import build
+from setuptools.command import build
 matplotlib.use('Qt5Agg')
 from matplotlib.animation import FuncAnimation, PillowWriter
 import Layers.L1_App.navigation.manoeuvre as manoeuvre
@@ -253,7 +253,6 @@ class MapHandler():
         tree = footprints[footprints['natural'] == 'tree']
         tree.plot(ax=ax, facecolor='green', alpha=0.7, label='tree', aspect='equal')
         
-
         footprints.plot(ax=ax, alpha=0.7)
         # Highlight your location node
         your_location_node = self._graph.nodes[69]
@@ -285,7 +284,7 @@ class MapHandler():
         self._animation = FuncAnimation(fig, self.manoeuvre.manoeuvre_simulation, frames=len(self.shortest_path), interval=1000, repeat=True)
         
         # Animate the current gps location
-        #self._animation = FuncAnimation(fig, gps_update, frames=100, interval=200, repeat=False) 
+        #self._animation = FuncAnimation(fig, gps_update, frames=100, interval=200, repeat=True) 
         #self.manoeuvre.plot_route()
         self.show_plot()
         self.save_animation()
