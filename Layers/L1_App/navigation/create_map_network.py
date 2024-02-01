@@ -297,7 +297,7 @@ class MapHandler():
         # Create a line to represent the trajectory
         trajectory_line, = plt.plot([], [], color='yellow')
 
-        def gps_update(i):
+        def gps_update(frame):
             self.lat, self.lon, self.height = self.gps.get_data()
             self.current.set_data(self.lon, self.lat)
             
