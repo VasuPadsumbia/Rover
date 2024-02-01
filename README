@@ -1,0 +1,30 @@
+# Autonomous Outdoor Sandbox Project
+
+
+
+## Project Description
+
+This project includes navigation of rover in Outdoor environment. Sensor interface includes SICK PLS 101 for Laser sensor of 180 degree range and Piksi Multi for DGPS and INS data. This application Communicates to mobile application over MQTT.
+
+## Installation
+
+To install and run this project, you will need Python and possibly some additional libraries. Here's how you can set it up:
+
+1. Project Dependencies includes
+        pip install osmnx 
+        pip install libsbp
+2. Clone the repository to your local machine.
+3. Navigate to the project directory.
+4. [Include any additional setup steps here]
+
+## Usage
+
+To use this project, [provide instructions on how to use your project. Include code examples if applicable].
+
+## Contributing
+
+[Provide information on how others can contribute to your project. Include guidelines for how to submit issues and pull requests.]
+
+## License
+
+[Include information about the license, if any]

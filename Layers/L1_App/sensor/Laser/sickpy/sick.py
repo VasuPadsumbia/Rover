@@ -33,7 +33,7 @@ import serial
 import time
 import sys
 import math
-from CRC16_SICK import *
+from .CRC16_SICK import *
 import cv2
 import numpy as np
 
@@ -76,16 +76,16 @@ class SICK():
         self.image = None
 
         # I use this as start sequence to ensure everything is set
-        if not self.test_status():
-            print("Trying with baudrate 38400")
-            self.ser.baudrate = 38400# checks for reply and changes baudrate if nec
-            if not self.test_status():
-                raise(Exception("Can not communicate with SICK. Please check connection, port and baudrate"))
-        #self.reset() # reset and initilize scanner
-        self.log_in() # login with password
-        self.set_38k() # set to 38k
-        self.request_scan_mode() # request scanning
-        self.set_op_mode() # set op-mode to enable scanning, wtf, dont know why
+        # if not self.test_status():
+        #     print("Trying with baudrate 38400")
+        #     self.ser.baudrate = 38400# checks for reply and changes baudrate if nec
+        #     if not self.test_status():
+        #         raise(Exception("Can not communicate with SICK. Please check connection, port and baudrate"))
+        # #self.reset() # reset and initilize scanner
+        # self.log_in() # login with password
+        # self.set_38k() # set to 38k
+        # self.request_scan_mode() # request scanning
+        # self.set_op_mode() # set op-mode to enable scanning, wtf, dont know why
 
     def calc_distances(self):
         coords = np.empty((0,3))
@@ -97,6 +97,7 @@ class SICK():
             y = sval * math.sin(float(i)/2.0*3.1415/180)
             coords = np.append(coords, np.array([[x,y,sval]]), axis=0)
         self.cartesian = coords
+        #return coords
 
     def make_image(self):
         img = np.zeros(((MAX_DIST + 50),2*(MAX_DIST + 50),3), np.uint8)
@@ -122,7 +123,7 @@ class SICK():
                         if self.crc_calc.calcSICK(self.hexar2str(msg[:-2])) == msg[-2:]:
                             self.frame = msg[:-2]
                             self.calc_distances()
-                            self.make_image()
+                            #self.make_image()
                         else:
                             print("CHECKSUM DOES NOT MATCH !")
                     elif response == 0xa0:
@@ -188,7 +189,7 @@ class SICK():
         msg.append(crc[1])
         if self._debug:
             print("Message: %s" % (''.join([hex(b)+" " for b in msg])))
-        self.ser.write(self.hexar2str(msg))
+        self.ser.write(self.hexar2str(msg).encode('UTF-8'))
 
 
     def request_scan_mode(self):

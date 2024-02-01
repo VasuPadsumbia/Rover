@@ -16,5 +16,10 @@
 		{
 			"bus": "/dev/ttyACM0",
 			"baud": 115200
+		},
+	"laser":
+		{
+			"port": "COM10",
+			"baud": 115200
 		}
 }

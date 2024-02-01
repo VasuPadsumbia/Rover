@@ -1,125 +1,164 @@
-import os, json, time
-from json.decoder import JSONDecodeError
-from .roboclaw_python.roboclaw_3 import Roboclaw
+from roboclaw_3 import Roboclaw
+import time
 
-class rover():
-    
-    def __init__(self) -> None:
+# Replace with your serial port and baud rate
+roboclaw = Roboclaw("COM6",115200)
+#roboclaw = Roboclaw("/dev/ttyACM0",115200)
+
+# Open the serial port
+roboclaw.Open()
+
+# Motor channel numbers
+address = 0x80
+m2count = 0
+m1count = 0
+fixed_value_90 = 4700
+fixed_value_distance = 9700
+sample_time = 0.1   
+one_round_cm = 69
+speed = 32 #constant speed
+plus = 20                     
+
+
+def right(Angle):
+        m2count = int((Angle*fixed_value_90)/90)
+        #m2count = int((90*fixed_value_90)/90)
+        print(m2count)
+        roboclaw.ResetEncoders(0x80)
+        roboclaw.ForwardM2(address,speed)
+        roboclaw.BackwardM1(address,speed)
         
-        """_summary_
+        while True :
+            motor_2 = roboclaw.ReadEncM2(0x80)
+            middle_value = int(motor_2[1]) #middle_value is the only encoder value other wise we got value (164,4700,0)
+            print(middle_value) 
+            range1 =  m2count - plus
+            range2 =  m2count + plus  
+            if range1< middle_value < range2:
+                roboclaw.ForwardM1(address,0)
+                roboclaw.ForwardM2(address,0)
+                break
+        time.sleep(sample_time)
 
-       
+def left(Angle):
+        m1count= int((Angle*fixed_value_90)/90)
+        #m1count= int((90*fixed_value_90)/90)
+        print(m1count)
+        roboclaw.ResetEncoders(0x80)
+        roboclaw.ForwardM1(address,speed)
+        roboclaw.BackwardM2(address,speed)
+        while True :
+                motor_1 = roboclaw.ReadEncM1(0x80)
+                middle_value = int(motor_1[1])   
+                range1 =  m1count - plus
+                range2 =  m1count + plus   
+                if range1< middle_value < range2:
+                    roboclaw.ForwardM1(address,0)
+                    roboclaw.ForwardM2(address,0)
+                    break
+        time.sleep(sample_time)
 
-        """
-        # Motor channel numbers
-        self.address = 0x80
+def forward(distance):
+        #Drive both motors forward
+        m1count= int((distance*fixed_value_distance)/one_round_cm) 
+        #fixed_value_distance represent encoder value after one rotation
+        #one_round_cm represent how much cm cover in one rotation
+        print(m1count)
+        roboclaw.ResetEncoders(0x80)
+        roboclaw.ForwardM1(address,speed)
+        roboclaw.ForwardM2(address,speed)
+        while True :
+                motor_1 = roboclaw.ReadEncM1(0x80)
+                middle_value = int(motor_1[1])   
+                range1 =  m1count - plus
+                range2 =  m1count + plus   
+                if range1< middle_value < range2:
+                    roboclaw.ForwardM1(address,0)
+                    roboclaw.ForwardM2(address,0)
+                    break
+        time.sleep(sample_time)
 
-        self.config_path = f'{os.path.abspath
-                              (os.path.join
-                               (os.path.dirname(__file__),"../../.."))}/Configure.json'
+def forward1():
+        #Drive both motors forward
+        roboclaw.ForwardM1(address,speed)
+        roboclaw.ForwardM2(address,speed)
 
-        try:
-            with open(self.config_path, "r") as config_file:
-                data = json.load(config_file)
-                self.bus = data['roboclaw']['bus']
-                self.baud = data['roboclaw']['baud']
-                config_file.close()
+def backward(distance):
+        #Drive both motors backward
+        m1count= int((-distance*fixed_value_distance)/one_round_cm)
+        print(m1count)
+        roboclaw.ResetEncoders(0x80)
+        roboclaw.BackwardM1(address,speed)
+        roboclaw.BackwardM2(address,speed)
+        while True :
+                motor_1 = roboclaw.ReadEncM1(0x80)
+                middle_value = int(motor_1[1])   
+                range1 =  m1count - plus
+                range2 =  m1count + plus   
+                if range1< middle_value < range2:
+                    roboclaw.ForwardM1(address,0)
+                    roboclaw.ForwardM2(address,0)
+                    break
+        time.sleep(sample_time)
+
+def stop():
+        #Stop both motors
+        roboclaw.ForwardM1(address,0)
+        roboclaw.ForwardM2(address,0)
+
+# def rotate360():
+#         #for rotating 360 digree
+#         roboclaw.ResetEncoders(0x80)
+#         roboclaw.ForwardM1(address,speed)
+#         roboclaw.BackwardM2(address,speed)
+#         m1count= (fixed_value_90 * 4)
         
-        except JSONDecodeError as e:
-            print("Failed to read JSON, return code %d\n", e)
-
-        ''' Creates roboclaw connection'''
-        try:
-            self.roboclaw = Roboclaw(self.bus,self.baud)
-            # Open the serial port
-            self.roboclaw.Open()
-        except Exception as e:
-            print(f"Error: {e}")
+#         while True :
+#                 motor_1 = roboclaw.ReadEncM1(0x80)
+#                 middle_value = int(motor_1[1])   
+#                 range1 =  m1count - plus
+#                 range2 =  m1count + plus   
+#                 if range1< middle_value < range2:
+#                     roboclaw.ForwardM1(address,0)
+#                     roboclaw.ForwardM2(address,0)
+#                     break
+#         time.sleep(sample_time)
         
-    def command(self, json_object):
-
-        if not (json_object.get("manualMode") is None):
-            action = json_object["manualMode"]
-            self.ManualMode(action)
+# while True:
+#     #speed = int(input("Enter the speed: "))
+#     #speed = 32 #constant speed
+#     if 0 < speed <= 100:
+#         plus = 20 if 0 < speed <= 32 else (40 if 33 <= speed <= 64 else (50 if 65 <= speed <= 100 else 0))
+#         break
+#     else:
+#         print("Invalid speed. Please enter a speed between 1 and 100.")
         
-        if not (json_object.get("autoMode") is None):
-            self.AutonomousMode()
-
-    def ManualMode(self, command):
         
-        if command == "forward":
-            # Drive both motors forward
-            self.drive_forward()
+# while True:
+#         userio = input("What's your option (forward,backward,right,left,stop,360): ")
 
-        elif command == "rotate":
-            self.rotate()
-            
-        elif command== "backward":
-            # Drive both motors in reverse
-            self.drive_backward()
+#         if userio in {"right","left"}:
+#                 angle_input = int(input(" At what angle do you want turn: "))
+#                 if userio == "right":
+#                         right(angle_input)
+#                 elif userio == "left":
+#                         left(angle_input)
+                        
+#         elif userio in {"forward","backward"}:
+#                 distance_input = int(input(" enter the distance: "))
+#                 if userio == "forward":
+#                         forward(distance_input)
+#                 elif userio == "backward":
+#                         backward(distance_input)
+                        
+#         match userio:
 
-        elif command == "stop":
-            #def stop():
-            self.stop()
+#                 case "stop":
+#                         stop()
 
-        elif command == "right":
-            #def turnrightmixed():
-            self.turn_right()
+                # case "360":
+                #         rotate360()
 
-        elif command == "left":
-            #def turnleftmixed():
-            self.turn_left()
-    
-    def AutonomousMode(self):
-        pass
 
-    def drive_forward(self):
-        print("Driving forward")
-        # Implement the logic to drive forward
-        # Example: Move both motors forward for 3 seconds
-        self.roboclaw.ForwardM1(self.address, 64)
-        self.roboclaw.ForwardM2(self.address, 64)
-        time.sleep(3)
-        self.stop()
 
-    def rotate(self):
-        print("Rotating")
-        # Implement the logic to rotate
-        # Example: Turn right by moving M1 forward and M2 backward
-        self.roboclaw.ForwardM1(self.address, 32)
-        self.roboclaw.BackwardM2(self.address, 32)
-        time.sleep(3)
-        self.stop()
-
-    def drive_backward(self):
-        print("Driving backward")
-        # Implement the logic to drive backward
-        # Example: Move both motors backward for 5 seconds
-        self.roboclaw.BackwardM1(self.address, 32)
-        self.roboclaw.BackwardM2(self.address, 32)
-        time.sleep(5)
-        self.stop()
-
-    def stop(self):
-        print("Stopping")
-        # Implement the logic to stop the motors
-        self.roboclaw.ForwardM1(self.address, 0)
-        self.roboclaw.ForwardM2(self.address, 0)
-        self.roboclaw.BackwardM1(self.address, 0)
-        self.roboclaw.BackwardM2(self.address, 0)
-
-    def turn_right(self):
-        print("Turning right")
-        # Implement the logic to turn right
-        # Example: Turn right by using TurnRightMixed
-        self.roboclaw.TurnRightMixed(self.address, 32)
-        time.sleep(5)
-        self.stop()
-
-    def turn_left(self):
-        print("Turning left")
-        # Implement the logic to turn left
-        # Example: Turn left by using TurnLeftMixed
-        self.roboclaw.TurnLeftMixed(self.address, 32)
-        time.sleep(5)
-        self.stop()
+        

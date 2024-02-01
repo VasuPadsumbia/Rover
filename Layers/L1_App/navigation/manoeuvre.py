@@ -16,8 +16,8 @@ class Target_manoeuvre():
         self._graph = graph
         self.shortest_path = shortest_path
         self.route = []
-        self.gps = connect_pksi_dgps()
-        self.ins = connect_pksi_INS()
+        #self.gps = connect_pksi_dgps()
+        #self.ins = connect_pksi_INS()
         #self.heading = self.get_heading_from_sensor() #add heading from magnetometer
         self.distances = [self.distance(self._graph.nodes[u]['y'], self._graph.nodes[u]['x'],
                                                  self._graph.nodes[v]['y'], self._graph.nodes[v]['x'])

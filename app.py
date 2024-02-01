@@ -7,14 +7,14 @@ from json.decoder import JSONDecodeError
 from queue import Queue
 from Layers.L2_Data.pub_data_handler import Pub_Handler
 from Layers.L1_App.sensor.dgps.DGPS import connect_pksi_dgps
-from Layers.L1_App.driver.rover import rover
+import Layers.L1_App.driver.Rover as rover
 from Layers.L1_App.navigation.create_map_network import MapHandler
 
 class AppCommand:
     def __init__(self) -> None:
         """Init Roboclaw"""
         self.enableManual = 69
-        self.rover = rover()
+        #self.rover = rover()
         # check connection is working between Jetson and Roboclaw
     """ while True:
             if not self.spi.spiHandshake():
@@ -35,7 +35,21 @@ class AppCommand:
                 if not (json_object.get("botCommand") is None):
                     print("botCommand received: {}".format(json_object["botCommand"]))
                     #self.rover.command(int(json_object["botcommand"]))
-
+                    if json_object["botCommand"] == 17:
+                        rover.forward(33)
+                        print("Robot is moving forwardm1")
+                    elif json_object["botCommand"] == 18:
+                        rover.backward(33)
+                        print("Robot is moving backward")
+                    elif json_object["botCommand"] == 20:
+                        rover.right(90)
+                        print("Robot is moving right")
+                    elif json_object["botCommand"] == 24:
+                        rover.left(90)
+                        print("Robot is moving left")
+                    elif json_object["botCommand"] == 16:
+                        rover.stop()
+                        print("Robot is stopped")
                 elif not (json_object.get("autoMode") is None):
                     print("autoMode received: {}".format(json_object["autoMode"]))
                     #self.rover.command(int(json_object["autoMode"]))
@@ -61,7 +75,7 @@ class AppData:
         self.mqtt = Pub_Handler()
         
         self.datarefreshRate = 30
-        
+        self.coordinates = (0, 0)
 
     
     def uploader(self, dataList):
@@ -104,10 +118,14 @@ class AppData:
             # Dictionary
             msg_dict = {
                 "topic": "/bot/data",
-                "coordinates": self.coordinates,
+                "latitude": str(self.coordinates[0]),
+                "longitude": str(self.coordinates[1]),
             }
             print(msg_dict)
-            time.sleep(0.1)
+            # send msg to MQTT broaker
+            time.sleep(self.datarefreshRate)
+            self.mqtt.data_handler(msg_dict)
+            
 
 class Navigator:
     def __init__(self) -> None:

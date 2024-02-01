@@ -51,11 +51,11 @@ class connect_pksi_INS():
                     msg, metadata = next(source.filter([SBP_MSG_MAG_RAW]),(None,None))
                     if msg is not None:
                         print(f'Data Recieving from piksi at IP {msg.sender}')
-                        self.mag_x_= msg.mag_x_ * 1e-3
-                        self.mag_y_= msg.mag_y_ * 1e-3
-                        self.mag_z_= msg.mag_z_ * 1e-3
+                        self.mag_x_= msg.mag_x * 1e-3
+                        self.mag_y_= msg.mag_y * 1e-3
+                        self.mag_z_= msg.mag_z * 1e-3
                         
-                    self.log()
+                    #self.log()
                     # Print out the Acceleration in X, Y, Z directions of the rover
                     # print("Magnetometer X : %.4f, "
                     #       "Magnetometer Y : %.4f,"
@@ -69,7 +69,7 @@ class connect_pksi_INS():
         # Open a connection to Piksi using TCP
         with TCPDriver(self.IP_add, self.port) as driver:
             with Handler(Framer(driver.read, None, verbose=True)) as source:
-                # print(f'Connection Eshtablished for piksi at IP {self.IP_add}')
+                print(f'Connection Eshtablished for piksi at IP {self.IP_add}')
 
                 ''' Getting data'''
                 try:
@@ -81,7 +81,7 @@ class connect_pksi_INS():
                         self.acc_y_= msg.acc_y * 1e-3
                         self.acc_z_= msg.acc_z * 1e-3
                         
-                    self.log()
+                    # self.log()
                     # Print out the Acceleration in X, Y, Z directions of the rover
                     # print("Acceleration X : %.4f,"
                     #       "Acceleration Y : %.4f,"

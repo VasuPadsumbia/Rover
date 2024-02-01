@@ -1,21 +1,18 @@
-from calendar import c
-from operator import ge
-from turtle import hideturtle
+from turtle import distance
+from xmlrpc.server import DocXMLRPCRequestHandler
 import osmnx as ox
 import networkx as nx
-import os, json, matplotlib
-import threading
+import os, json, matplotlib, threading
 import matplotlib.pyplot as plt
-from scipy.datasets import face
-
 from setuptools.command import build
 matplotlib.use('Qt5Agg')
 from matplotlib.animation import FuncAnimation, PillowWriter
 import Layers.L1_App.navigation.manoeuvre as manoeuvre
-from helper import map_coordinate_path
+import helper as helper
 from Layers.L1_App.sensor.dgps.DGPS import connect_pksi_dgps
-import base64
-from IPython.display import HTML
+import math
+import numpy as np
+from Layers.L1_App.sensor.imu.gyroscpe import connect_pksi_INS
 class MapHandler():
     def __init__(self, type, destination, place_name=None, coordinates=[]) -> None:
         
@@ -29,7 +26,8 @@ class MapHandler():
             destination : desired target location to which the rover need to go.
             nodes = number of turnes for rover to travel till destination
         """
-        self.path = map_coordinate_path()
+        self.path = helper.map_coordinate_path()
+        #self.path = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../.."))}/L2_Data/gps_data.json'
         self._network_type = type
         self._destination = destination
         self._animation = None
@@ -40,15 +38,24 @@ class MapHandler():
         self.initial_location = coordinates
         self._footprints = None
         self.shortest_path = None
+        self.heading = None
+        self.INS = connect_pksi_INS()
         if coordinates:
             self._path_graphml = self.create_street_network_point(coordinates)
         elif place_name:
             self._path_graphml = self.create_street_network_place(place_name)
-        self.gps = connect_pksi_dgps()
+        gps_config_path = helper.config_path()
+        self.gps = connect_pksi_dgps(gps_config_path)
         self.dummy = self.get_coordinates_from_json()
         self._graph = self.create_area_graph()
         
-        
+    def get_map(self):
+        print(f'create area graph(): {self.create_area_graph()}')
+        print(f'find shortest path between two points(): {self.find_shortest_path_between_two_points()}')
+        print(f'cartesian coordinates(): {self.cartesian_coordinates()}')
+        print(f'logging coordinates(): {self.log_coordinates()}')
+        print(f'plot graph shortest route(): {self.plot_graph_shortest_route()}')
+
     def create_street_network_place(self, place_name):
         
         """
@@ -93,7 +100,6 @@ class MapHandler():
             #This will create streetnetwork.graphml equiv size = 277M
         return path_graphml
         
-    
     def create_street_network_point(self, coordinates):
         
         """
@@ -124,7 +130,7 @@ class MapHandler():
         #This Checks if the Streetnetwork File exists(or creation is overwritten using FORCE_CREATE)
         if (not os.path.isfile(path_graphml)) or FORCE_CREATE:
             #There are many different ways to create the Network Graph. Please follow osmnx documentation for more details
-            area_graph = ox.graph_from_point(coordinates, network_type = self._network_type, dist=200)
+            area_graph = ox.graph_from_point(coordinates, network_type = self._network_type, dist=150)
             print(len(area_graph.nodes), len(area_graph.edges))
             start_edge  = ox.nearest_edges(area_graph, self.initial_location[1], self.initial_location[0], return_dist=True)
             end_edge  = ox.nearest_edges(area_graph, self._destination[1], self._destination[0], return_dist=True)
@@ -164,20 +170,27 @@ class MapHandler():
         tags = {'building':True,'highway':'road', 'natural': True ,'tourism':'college'}
         # Plot footprints on the same plot
         footprints = self.create_footprints(tags) 
-        college = footprints[footprints['tourism'] == 'museum']
-        college.plot(ax=ax, facecolor='red', alpha=0.7, label='museum', aspect='equal')
+        # Define colors for each footprint type
+        colors = {'museum': 'red', 'tree': 'green', 'building': 'blue', 'highway': 'white'}
 
-        tree = footprints[footprints['natural'] == 'tree']
-        tree.plot(ax=ax, facecolor='green', alpha=0.7, label='tree', aspect='equal')
+        # college = footprints[footprints['tourism'] == 'museum']
+        # college.plot(ax=ax, facecolor='red', alpha=0.7, label='museum', aspect='equal')
+
+        # tree = footprints[footprints['natural'] == 'tree']
+        # tree.plot(ax=ax, facecolor='green', alpha=0.7, label='tree', aspect='equal')
         
-        building = footprints[footprints['building'] == 'yes']
-        building.plot(ax=ax, facecolor='blue', alpha=0.7, label='building', aspect='equal')
+        # building = footprints[footprints['building'] == 'yes']
+        # building.plot(ax=ax, facecolor='blue', alpha=0.7, label='building', aspect='equal')
 
-        highway = footprints[footprints['highway'] == 'road']
-        highway.plot(ax=ax, facecolor='white', alpha=0.7, label='highway', aspect='equal')
-        #general_footprints = footprints[(footprints['building'].isnull()) & (footprints['highway'].isnull())]
+        # highway = footprints[footprints['highway'] == 'road']
+        # highway.plot(ax=ax, facecolor='white', alpha=0.7, label='highway', aspect='equal')
+        # #general_footprints = footprints[(footprints['building'].isnull()) & (footprints['highway'].isnull())]
         #general_footprints.plot(ax=ax, facecolor='orange' ,label='buildings', aspect='equal', alpha=0.7)
-        footprints.plot(ax=ax, alpha=0.7)
+        #footprints.plot(ax=ax, alpha=0.7)
+        # Plot footprints on the same plot
+        for footprint_type, color in colors.items():
+            filtered_footprints = footprints[footprints[footprint_type] == True]
+            filtered_footprints.plot(ax=ax, facecolor=color, alpha=0.7, label=footprint_type, aspect='equal')
         # Highlight your location node
         your_location_node = self._graph.nodes[69]
         ax.scatter(your_location_node["x"], your_location_node["y"], c="red", s=50, zorder=5, label="Your Location")
@@ -196,7 +209,7 @@ class MapHandler():
         """
         #bbox = ox.utils_geo.bbox_from_point(self._origin,dist=150)
         #ox.features_from_bbox(bbox[0],bbox[1],bbox[2],bbox[3],tags={'building':True,'highway':'road'})
-        return ox.features_from_point(self.initial_location, tags=tags, dist=200)
+        return ox.features_from_point(self.initial_location, tags=tags, dist=150)
 
     def find_shortest_path_between_two_points(self):
         
@@ -244,56 +257,91 @@ class MapHandler():
         
         fig, ax = ox.plot_graph(self._graph, bgcolor="k", show=False, close=False)
         
-        tags = {'building':True,'highway':'road', 'natural': True }
+        tags = {'building':True,'highway': 'road', 'natural': True }
+        # Define colors for each footprint type
+        colors = {'natural': 'green', 'building': 'blue', 'highway': 'white'}
         # Plot footprints on the same plot
         footprints = self.create_footprints(tags) 
-        college = footprints[footprints['tourism'] == 'museum']
-        college.plot(ax=ax, facecolor='red', alpha=0.7, label='museum', aspect='equal')
+        #college = footprints[footprints['tourism'] == 'museum']
+        #college.plot(ax=ax, facecolor='red', alpha=0.7, label='museum', aspect='equal')
 
         tree = footprints[footprints['natural'] == 'tree']
         tree.plot(ax=ax, facecolor='green', alpha=0.7, label='tree', aspect='equal')
         
         footprints.plot(ax=ax, alpha=0.7)
-        # Highlight your location node
         your_location_node = self._graph.nodes[69]
-        self.start_point, = ax.plot(your_location_node['x'], your_location_node['y'], 'bo', markersize=10, label='Start Point')
+        self.start_point, = ax.plot(your_location_node['x'], your_location_node['y'], 'bo', markersize=7, label='Start Point')
         #ax.scatter(your_location_node["x"], your_location_node["y"], c="cyan", s=50, zorder=5, label="Your Location")
         
         #plot gps location marker
-        #self.lat, self.lon, self.height = self.gps.get_data()
-        #self.current, = ax.plot(self.lon, self.lat, 'bo', markersize=10, label='Current Location')
-        
+        self.lat, self.lon, self.height = self.gps.get_data()
+        self.current, = ax.plot(self.lon, self.lat, 'ro', markersize=7, label='Current Location')
         ax.legend()
         #ox.plot_graph_route(self._graph, self.find_shortest_path_between_two_points(), route_color='r', route_linewidth=2, ax=ax, save=True,filepath=f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../"))}/L2_Data/map.png')
         self.shortest_path=self.find_shortest_path_between_two_points()
         #self._map_navigator = MapNavigator(self._graph,self.shortest_path, self.start_point)
         #self._map_navigator.navigate()
-        self.manoeuvre = manoeuvre.Target_manoeuvre(0.0001, self.path, self._graph, self.shortest_path, self.start_point)
-        #print(len(self.shortest_path))
+        #self.manoeuvre = manoeuvre.Target_manoeuvre(0.0001, self.path, self._graph, self.shortest_path, self.start_point)
+        # Add a text box showing the distance
+        distance_text = ax.text(0.05, 0.95, '', transform=ax.transAxes, fontsize=14,
+                                verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.5))
+        # Initialize list to store distances
+        distances = []
         path_png = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../"))}/L2_Data/map.png'
+        length=0.01
+        # dx = length * np.cos(self.get_heading())
+        # dy = length * np.sin(self.get_heading())
+        # # Create an arrow to represent the heading
+        # arrow = plt.arrow(x=self.lat, y=self.lon, dx=dx, dy=dy, color='red', width=0.0005, head_width=0.001)
+        trajectory = []
+        # Create a line to represent the trajectory
+        trajectory_line, = plt.plot([], [], color='yellow')
+
         def gps_update(i):
             self.lat, self.lon, self.height = self.gps.get_data()
             self.current.set_data(self.lon, self.lat)
-            return self.current,        
+            
+            # Append the new coordinates to the trajectory
+            trajectory.append((self.lon, self.lat))
+
+            # Update the trajectory line
+            trajectory_line.set_data(*zip(*trajectory))
+    
+            # Calculate the new heading
+            #angle = self.get_heading()
+            #dx = length * np.cos(angle)
+            #dy = length * np.sin(angle)
+
+            # Update the arrow with the new heading
+            #arrow.set_xy(self.current,2)
+            #arrow.set_width(dx)
+            #arrow.set_height(dy)
+            
+            # Update the text box with the new distance
+            distance_text.set_text(f'Distance: {self.get_distance():.5f} m')
+            print(f'Distance: {self.get_distance():.5f} m')
+            distances.append(self.get_distance())
+            return self.current, #arrow,     
         
         if self.shortest_path is not None:
             fig, ax = ox.plot_graph_route(self._graph, self.shortest_path,route_color='r',route_linewidth=2,
                                             ax=ax,save=True,filepath=path_png, node_size=0, show=False, close=False)
         
         # Animate the movement along the path
-        self._animation = FuncAnimation(fig, self.manoeuvre.manoeuvre_simulation, frames=len(self.shortest_path), interval=1000, repeat=True)
+        #self._animation = FuncAnimation(fig, self.manoeuvre.manoeuvre_simulation, frames=len(self.shortest_path), interval=1000, repeat=True)
         
         # Animate the current gps location
-        #self._animation = FuncAnimation(fig, gps_update, frames=100, interval=200, repeat=True) 
+        self._animation = FuncAnimation(fig, gps_update, frames=100, interval=100, repeat=False) 
         #self.manoeuvre.plot_route()
         self.show_plot()
         self.save_animation()
-        
+        average_distance = sum(distances)/len(distances)
+        print(f'Average distance error: {average_distance}')
         # Create a lock
         #lock = threading.Lock()
         # Create and start the threads for saving the animation and showing the plot
-        #save_thread = threading.Thread(target=self.save_animation, args = (lock,))
-        #show_thread = threading.Thread(target=self.show_plot, args = (lock,))
+        #save_thread = threading.Thread(target=self.save_animation)
+        #show_thread = threading.Thread(target=self.show_plot)
         # Start the threads
         #save_thread.start()
         #show_thread.start()
@@ -302,7 +350,7 @@ class MapHandler():
         #save_thread.join()
         #show_thread.join()
 
-    def log(self):
+    def log_details(self):
         try:
             #location = [{'Point': i // 2 + 1 'latitude': self.coordinates[i], 'longitude': self.coordinates[i+1]}]for i in range(0, len(self.cordinates), 2)
             data_JSON = {
@@ -333,6 +381,7 @@ class MapHandler():
 
         except Exception as e:
             print(f"An error occurred: {e}")
+    
     def get_coordinates_from_json(self):
         try:
             path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../L2_Data/gps_dummy.json"))
@@ -355,6 +404,10 @@ class MapHandler():
             print(f"An error occurred: {e}")
             return None
         
+    def get_heading(self):
+        self.heading = math.radians(self.INS.get_heading())
+        return self.INS.get_heading()
+    
     def save_animation(self):
             try:
                 # # Convert the animation to HTML5 video format
@@ -369,7 +422,7 @@ class MapHandler():
                 # </body>
                 # </html>
                 # """
-                path_gif = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../../"))}/path_animation.gif'
+                path_gif = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../../"))}/distance_check_7.gif'
                 writer = PillowWriter(fps=30) 
                 self._animation.save(path_gif, writer='pillow')
                 # Write the HTML string to a file
@@ -386,3 +439,29 @@ class MapHandler():
             except Exception as e:
                 print(f"An error occurred: {e}")
                 return None
+            
+    def get_distance(self):
+        try:
+            # Get the current GPS location
+            self.lat, self.lon, self.height = self.gps.get_data()
+            # Calculate the distance between the current location and the destination
+            self.calculated_distance = self.distance(self.initial_location,(self.lat, self.lon))
+            return self.calculated_distance
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return None
+        
+    def distance(self, origin, destination):
+        """
+        Calculate the distance between two points using the Haversine formula
+        """
+        lat1, lon1 = origin
+        lat2, lon2 = destination
+        radius = 6371000  # meters
+        dlat = math.radians(lat2 - lat1)
+        dlon = math.radians(lon2 - lon1)
+        a = math.sin(dlat / 2) * math.sin(dlat / 2) + math.cos(math.radians(lat1)) \
+            * math.cos(math.radians(lat2)) * math.sin(dlon / 2) * math.sin(dlon / 2)
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+        distance = radius * c
+        return distance
