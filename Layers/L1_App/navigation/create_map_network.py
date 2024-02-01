@@ -262,9 +262,7 @@ class MapHandler():
         colors = {'natural': 'green', 'building': 'blue', 'highway': 'white'}
         # Plot footprints on the same plot
         footprints = self.create_footprints(tags) 
-        #college = footprints[footprints['tourism'] == 'museum']
-        #college.plot(ax=ax, facecolor='red', alpha=0.7, label='museum', aspect='equal')
-
+        
         tree = footprints[footprints['natural'] == 'tree']
         tree.plot(ax=ax, facecolor='green', alpha=0.7, label='tree', aspect='equal')
         
@@ -337,18 +335,6 @@ class MapHandler():
         self.save_animation()
         average_distance = sum(distances)/len(distances)
         print(f'Average distance error: {average_distance}')
-        # Create a lock
-        #lock = threading.Lock()
-        # Create and start the threads for saving the animation and showing the plot
-        #save_thread = threading.Thread(target=self.save_animation)
-        #show_thread = threading.Thread(target=self.show_plot)
-        # Start the threads
-        #save_thread.start()
-        #show_thread.start()
-        
-        # Wait for both threads to finish
-        #save_thread.join()
-        #show_thread.join()
 
     def log_details(self):
         try:
