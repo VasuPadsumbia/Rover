@@ -128,6 +128,11 @@ class Laser():
                     elif theta_3 > 90 and theta_2 < 90:
                         print(f'turn angle: {(theta_3 - theta_2)/2}')
                         print("turn left")
+                    else:
+                        pass
+                else:
+                    continue
+            
 
 laser = Laser()
 laser.scan()

@@ -6,6 +6,11 @@
             "IP_add": "195.37.48.193",
             "port": 55555
 		},
+	"base":
+		{
+            "IP_add": "195.37.48.235",
+            "port": 55555
+		},
 	"mqtt":
 		{
 			"broker": "localhost",
