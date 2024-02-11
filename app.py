@@ -9,7 +9,7 @@ from Layers.L2_Data.pub_data_handler import Pub_Handler
 from Layers.L1_App.sensor.dgps.DGPS import connect_pksi_dgps
 import Layers.L1_App.driver.Rover as rover
 from Layers.L1_App.navigation.create_map_network import MapHandler
-
+from Layers.L1_App.sensor.Laser.point_cloud import Laser as ls
 class AppCommand:
     def __init__(self) -> None:
         """Init Roboclaw"""
@@ -76,7 +76,7 @@ class AppData:
         
         self.datarefreshRate = 30
         self.coordinates = (0, 0)
-
+        self.config_path = config_path()
     
     def uploader(self, dataList):
         print(dataList)
@@ -105,8 +105,8 @@ class AppData:
         while True:
             try:
                 """Establishing connection with GPS"""
-                gps = connect_pksi_dgps()
-                self.coordinates = gps.get_data()
+                gps = connect_pksi_dgps(self.config_path)
+                self.coordinates = gps.get_data(type="rover")
                 print(f'Getting Longitudenal and Latitude data: {self.coordinates}')
                 print(f'Logging Longitudenal and Latitude data: {gps.log()}')
             except KeyboardInterrupt:
@@ -130,7 +130,7 @@ class AppData:
 class Navigator:
     def __init__(self) -> None:
         #self.mqtt = Pub_Handler()
-    
+        self.laser = ls()
         config_path = f'{os.path.abspath(os.path.dirname(__file__))}/Layers/L2_Data/gps_data.json'
 
         try:
@@ -153,13 +153,13 @@ class Navigator:
             print(targetLocation)
             #print(self.coordinates)
             map = MapHandler(type='all', destination=targetLocation, coordinates=self.coordinates)
-            print(f'create area graph(): {map.create_area_graph()}')
-            print(f'find shortest path between two points():{map.find_shortest_path_between_two_points()}')
-            cartesian_coordinates = map.cartesian_coordinates()
-            print(f'cartesian coordinates(): {cartesian_coordinates}')
-            print(f'logging coordinates(): {map.log()}')
-            print(f'plot graph shortest route(): {map.plot_graph_shortest_route()}')
-
+            # print(f'create area graph(): {map.create_area_graph()}')
+            # print(f'find shortest path between two points():{map.find_shortest_path_between_two_points()}')
+            # cartesian_coordinates = map.cartesian_coordinates()
+            # print(f'cartesian coordinates(): {cartesian_coordinates}')
+            # print(f'logging coordinates(): {map.log_coordinates()}')
+            # print(f'plot graph shortest route(): {map.plot_graph_shortest_route()}')
+            print(f'plot graph(): {map.get_map()}')
             # Publish the initial direction to app
             """ msg_dict = {
                 "topic": '/navigation/data',
@@ -175,6 +175,7 @@ class Navigator:
         while True:
             try:
                 self.autonomousNavigator(q2)
+                print(f'Laser data: {self.laser.get_data()}')
 
             except KeyboardInterrupt:
                 print("exiting navigator with error!")
