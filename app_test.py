@@ -1,6 +1,7 @@
+from re import M
 from Layers.L1_App.mqtt.mqtt_subscribe import MQTT_Subscribe
 from queue import Queue
-from app import AppCommand, Navigator, AppData
+from app import AppCommand, Navigator, AppData, Manouver
 from threading import Thread
 class Worker:
     def __init__(self) -> None:
@@ -8,6 +9,7 @@ class Worker:
         self.navigator = Navigator()
         self.MqttSub = MQTT_Subscribe()
         self.AppData = AppData()
+        self.manouver = Manouver()
 
     def main(self):
         # Create the shared queue
@@ -22,6 +24,7 @@ class Worker:
         print("init thread 3")
         t4 = Thread(target=self.navigator.worker, args=(q2,))
         print("init thread 4")
+        t5 = Thread(target=self.manouver.worker)
         t1.start()  
         print("thread 1 started")
         t2.start()
