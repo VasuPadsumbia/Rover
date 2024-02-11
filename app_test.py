@@ -25,6 +25,7 @@ class Worker:
         t4 = Thread(target=self.navigator.worker, args=(q2,))
         print("init thread 4")
         t5 = Thread(target=self.manouver.worker)
+        print("init thread 5")
         t1.start()  
         print("thread 1 started")
         t2.start()
@@ -33,11 +34,14 @@ class Worker:
         print("thread 3 started")
         t4.start()
         print("thread 4 started")
+        t5.start()
+        print("thread 5 started")
 
         t1.join()
         t2.join()
         t3.join()
         t4.join()
+        t5.join()
 if __name__ == "__main__":
     worker = Worker()
     worker.main()
