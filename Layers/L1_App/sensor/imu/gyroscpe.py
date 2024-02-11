@@ -99,9 +99,7 @@ class connect_pksi_INS():
             "acc_y": self.acc_y_,
             "acc_z": self.acc_z_
         }
-        with open(f'{os.path.abspath(
-            os.path.join(
-                os.path.dirname(__file__),"../../.."))}/L2_Data/gyro_data.json', "w") as write_file:
+        with open(f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../.."))}/L2_Data/gyro_data.json', "w") as write_file:
             json.dump(data_JSON, write_file)
     
     def get_heading(self):
