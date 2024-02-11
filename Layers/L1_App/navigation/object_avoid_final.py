@@ -1,6 +1,6 @@
-from sick2 import SICK
+from Layers.L1_App.sensor.Laser.sickpy.sick2 import SICK
 import math
-import Rover as bot
+import Layers.L1_App.driver.rover as bot
 
 class Object_avoid:
     def __init__(self, sick, target_distance, target_angle):
@@ -77,6 +77,6 @@ class Object_avoid:
         elif self.left == False:
             bot.left(90)
 
-sick = SICK(port="/dev/ttyUSB1")  # Replace with your actual port
-ob = Object_avoid(sick, target_distance=40, target_angle=(60, 120))
-ob.object_detect()
+# sick = SICK(port="/dev/ttyUSB1")  # Replace with your actual port
+# ob = Object_avoid(sick, target_distance=40, target_angle=(60, 120))
+# ob.object_detect()

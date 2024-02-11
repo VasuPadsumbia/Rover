@@ -1,9 +1,9 @@
 from re import L
-import sickpy.sick as sick
+import sickpy.sick2 as sick
 import cv2
 import time, json, os, math
 from json.decoder import JSONDecodeError
-#import helper as helper
+from helper import * 
 class Laser():
     def __init__(self) -> None:
         #self.config_path = helper.config_path()
@@ -22,10 +22,10 @@ class Laser():
         except JSONDecodeError as e:
             print("Failed to read JSON, return code %d\n", e)
         
-        #self.polarMap_path = helper.polarMap_path()
+        self.polarMap_path = polarMap_path()
         
         self.laser = self.connect()
-        self.scan()
+        #self.scan()
 
     def scan(self):
         ''' Scans the laser'''
@@ -38,7 +38,7 @@ class Laser():
         try:
             print(".")
             if self.laser.get_frame():
-                print(f'cartesian: {self.laser.cartesian}')
+                print(f'cartesian: {self.laser.polar}')
                 #print(f'Cartesian Coordinates: {self.get_cartesian()}')
                 #self.polar_coordinates = self.cartesian_to_polar()
                 #print(f'Polar Coordinates: {self.cartesian_to_polar()}')
@@ -63,7 +63,7 @@ class Laser():
         ''' Logs the laser data'''
         try:    
             with open(self.polarMap_path, "w") as polarMap_file:
-                data = [self.polar_coordinates[i:i+2] for i in range(0, len(self.polar_coordinates), 2)]
+                data = [self.laser.polar[i:i+2] for i in range(0, len(self.laser.polar), 2)]
                 data_JSON = { 'laser' : data}
                 json.dump(data_JSON, polarMap_file, indent=4)
                 polarMap_file.close()
@@ -72,25 +72,25 @@ class Laser():
             print("Failed to read JSON, return code %d\n", e)
         
     
-    def get_cartesian(self):
-        ''' Returns the cartesian coordinates'''
-        self.cartesian_data = self.laser.cartesian
-        #print(f'cartesian_data: {self.cartesian_data[[0]]}')
-        for x, y, d in self.cartesian_data:
-            print(f'x: {x}')
-            #self.x.append(x)
-            #self.y.append(y)
-            #self.d.append(d)
+    # def get_cartesian(self):
+    #     ''' Returns the cartesian coordinates'''
+    #     self.cartesian_data = self.laser.cartesian
+    #     #print(f'cartesian_data: {self.cartesian_data[[0]]}')
+    #     for x, y, d in self.cartesian_data:
+    #         print(f'x: {x}')
+    #         #self.x.append(x)
+    #         #self.y.append(y)
+    #         #self.d.append(d)
 
-        return self.x, self.y, self.d
+    #     return self.x, self.y, self.d
 
-    def cartesian_to_polar(self):
-        ''' Converts cartesian coordinates to polar coordinates'''
-        self.cartesian_data()
-        for x, y, d in self.cartesian_data:
-            self.r.append(math.sqrt(x**2 + y**2))
-            self.theta.append(math.atan2(y, x))
-        return (self.r, self.theta)
+    # def cartesian_to_polar(self):
+    #     ''' Converts cartesian coordinates to polar coordinates'''
+    #     self.cartesian_data()
+    #     for x, y, d in self.cartesian_data:
+    #         self.r.append(math.sqrt(x**2 + y**2))
+    #         self.theta.append(math.atan2(y, x))
+    #     return (self.r, self.theta)
     
     def obstacle_within_range(self, r):
         ''' Checks if obstacle is within range'''
@@ -134,8 +134,8 @@ class Laser():
                     continue
             
 
-laser = Laser()
-laser.scan()
+# laser = Laser()
+# laser.scan()
         
 
         

@@ -7,9 +7,10 @@ from json.decoder import JSONDecodeError
 from queue import Queue
 from Layers.L2_Data.pub_data_handler import Pub_Handler
 from Layers.L1_App.sensor.dgps.DGPS import connect_pksi_dgps
-import Layers.L1_App.driver.Rover as rover
+import Layers.L1_App.driver.rover as rover
 from Layers.L1_App.navigation.create_map_network import MapHandler
 from Layers.L1_App.sensor.Laser.point_cloud import Laser as ls
+from Layers.L1_App.navigation.object_avoid_final import Object_avoid
 class AppCommand:
     def __init__(self) -> None:
         """Init Roboclaw"""
@@ -68,7 +69,7 @@ class AppCommand:
             except KeyboardInterrupt:
                 print("exiting")
 
-#Update the below code for point cloud from SICK laser sensor or camera object avoidance algorithm
+
 class AppData:
     def __init__(self) -> None:
         #Init MQTT & SPI
@@ -77,7 +78,10 @@ class AppData:
         self.datarefreshRate = 30
         self.coordinates = (0, 0)
         self.config_path = config_path()
-    
+        self.gps = connect_pksi_dgps(self.config_path)
+        # Data Log for autonomous mode
+        print(f'Getting Longitudenal and Latitude data: {self.gps.get_data(type="rover")}')
+        print(f'Logging Longitudenal and Latitude data: {self.gps.log()}')
     def uploader(self, dataList):
         print(dataList)
 
@@ -105,8 +109,8 @@ class AppData:
         while True:
             try:
                 """Establishing connection with GPS"""
-                gps = connect_pksi_dgps(self.config_path)
-                self.coordinates = gps.get_data(type="rover")
+                
+                self.coordinates = self.gps.get_data(type="rover")
                 print(f'Getting Longitudenal and Latitude data: {self.coordinates}')
                 # print(f'Logging Longitudenal and Latitude data: {gps.log()}')
             except KeyboardInterrupt:
@@ -126,13 +130,12 @@ class AppData:
             time.sleep(self.datarefreshRate)
             self.mqtt.data_handler(msg_dict)
             
-
 class Navigator:
     def __init__(self) -> None:
         #self.mqtt = Pub_Handler()
         self.laser = ls()
-        config_path = f'{os.path.abspath(os.path.dirname(__file__))}/Layers/L2_Data/gps_data.json'
-
+        # config_path = f'{os.path.abspath(os.path.dirname(__file__))}/Layers/L2_Data/gps_data.json'
+        config_path = gps_path()
         try:
             with open(config_path, "r") as config_file:
                 data = json.load(config_file)
@@ -175,7 +178,21 @@ class Navigator:
         while True:
             try:
                 self.autonomousNavigator(q2)
-                print(f'Laser data: {self.laser.get_data()}')
+                # print(f'Laser data: {self.laser.scan()}')
 
             except KeyboardInterrupt:
                 print("exiting navigator with error!")
+
+#Update the below code for point cloud from SICK laser sensor or camera object avoidance algorithm
+class manoeuvre:
+    def __init__(self) -> None:
+        self.laser = ls()
+        self.ob = Object_avoid(self.laser.laser, target_distance=40, target_angle=(60, 120))
+    def worker(self):
+        while True:
+            try:    
+                print(f'Laser data: {self.laser.scan()}')
+                print(f'Object Avoidance: {self.ob.object_detect()}')
+                time.sleep(0.1)
+            except KeyboardInterrupt:
+                print("exiting manoeuvre with error!")
