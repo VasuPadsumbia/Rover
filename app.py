@@ -108,7 +108,7 @@ class AppData:
                 gps = connect_pksi_dgps(self.config_path)
                 self.coordinates = gps.get_data(type="rover")
                 print(f'Getting Longitudenal and Latitude data: {self.coordinates}')
-                print(f'Logging Longitudenal and Latitude data: {gps.log()}')
+                # print(f'Logging Longitudenal and Latitude data: {gps.log()}')
             except KeyboardInterrupt:
                 print("GPS connection ended") 
 
