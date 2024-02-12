@@ -1,18 +1,16 @@
-from turtle import distance
-from xmlrpc.server import DocXMLRPCRequestHandler
 import osmnx as ox
 import networkx as nx
-import os, json, matplotlib, threading
+import numpy as np
+import helper as helper
+import os, json, matplotlib, math
 import matplotlib.pyplot as plt
 from setuptools.command import build
 matplotlib.use('Qt5Agg')
 from matplotlib.animation import FuncAnimation, PillowWriter
 import Layers.L1_App.navigation.manoeuvre as manoeuvre
-import helper as helper
 from Layers.L1_App.sensor.dgps.DGPS import connect_pksi_dgps
-import math
-import numpy as np
 from Layers.L1_App.sensor.imu.gyroscpe import connect_pksi_INS
+from Layers.L1_App.navigation.INS import INS
 class MapHandler():
     def __init__(self, type, destination, place_name=None, coordinates=[]) -> None:
         
@@ -49,6 +47,7 @@ class MapHandler():
         self.type = "base"
         self.dummy = self.get_coordinates_from_json()
         self._graph = self.create_area_graph()
+        self._INS = INS()
         
     def get_map(self):
         print(f'create area graph(): {self.create_area_graph()}')
@@ -273,7 +272,7 @@ class MapHandler():
         #ax.scatter(your_location_node["x"], your_location_node["y"], c="cyan", s=50, zorder=5, label="Your Location")
         
         #plot gps location marker
-        self.lat, self.lon, self.height = self.get_gps_data()
+        self.lat, self.lon = self.get_gps_data()
         self.current, = ax.plot(self.lon, self.lat, 'ro', markersize=7, label='Current Location')
         ax.legend()
         #ox.plot_graph_route(self._graph, self.find_shortest_path_between_two_points(), route_color='r', route_linewidth=2, ax=ax, save=True,filepath=f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../"))}/L2_Data/map.png')
@@ -287,40 +286,40 @@ class MapHandler():
         # Initialize list to store distances
         distances = []
         path_png = f'{os.path.abspath(os.path.join(os.path.dirname(__file__),"../../"))}/L2_Data/map.png'
-        length=0.01
-        dx = length * np.cos(self.get_heading())
-        dy = length * np.sin(self.get_heading())
-        # Create an arrow to represent the heading
-        arrow = plt.arrow(x=self.lat, y=self.lon, dx=dx, dy=dy, color='red', width=0.0005, head_width=0.001)
-        trajectory = []
-        # Create a line to represent the trajectory
-        trajectory_line, = plt.plot([], [], color='yellow')
+        # length=0.01
+        # dx = length * np.cos(self.get_heading())
+        # dy = length * np.sin(self.get_heading())
+        # # Create an arrow to represent the heading
+        # arrow = plt.arrow(x=self.lat, y=self.lon, dx=dx, dy=dy, color='red', width=0.0005, head_width=0.001)
+        # trajectory = []
+        # # Create a line to represent the trajectory
+        # trajectory_line, = plt.plot([], [], color='yellow')
 
         def gps_update(frame):
-            self.lat, self.lon, self.height = self.get_gps_data()
+            self.lat, self.lon = self.get_gps_data()
             self.current.set_data(self.lon, self.lat)
             
-            # Append the new coordinates to the trajectory
-            trajectory.append((self.lon, self.lat))
+            # # Append the new coordinates to the trajectory
+            # trajectory.append((self.lon, self.lat))
 
-            # Update the trajectory line
-            trajectory_line.set_data(*zip(*trajectory))
+            # # Update the trajectory line
+            # trajectory_line.set_data(*zip(*trajectory))
     
-            # Calculate the new heading
-            angle = self.get_heading()
-            dx = length * np.cos(angle)
-            dy = length * np.sin(angle)
+            # # Calculate the new heading
+            # angle = self.get_heading()
+            # dx = length * np.cos(angle)
+            # dy = length * np.sin(angle)
 
-            # Update the arrow with the new heading
-            arrow.set_xy(self.current)
-            arrow.set_widths(dx)
-            arrow.set_heights(dy)
+            # # Update the arrow with the new heading
+            # arrow.set_xy(self.current)
+            # arrow.set_widths(dx)
+            # arrow.set_heights(dy)
             
             # Update the text box with the new distance
             distance_text.set_text(f'Distance: {self.get_distance():.5f} m')
             print(f'Distance: {self.get_distance():.5f} m')
             distances.append(self.get_distance())
-            return self.current, arrow,     
+            return self.current, #arrow,     
         
         if self.shortest_path is not None:
             fig, ax = ox.plot_graph_route(self._graph, self.shortest_path,route_color='r',route_linewidth=2,
@@ -385,8 +384,9 @@ class MapHandler():
     def get_gps_data(self):
 
         try:
-            self.lat, self.lon, self.height = self.gps.get_data(type=self.type)
-            return self.lat, self.lon, self.height
+            # self.lat, self.lon, self.height = self.gps.get_data(type=self.type) # Raw data
+            self.lat, self.lon = self._INS.get_data() # Processed data
+            return self.lat, self.lon
         except Exception as e:
             print(f"An error occurred: {e}")
             return None
@@ -430,7 +430,7 @@ class MapHandler():
     def get_distance(self):
         try:
             # Get the current GPS location
-            self.lat, self.lon, self.height = self.gps.get_data()
+            self.lat, self.lon = self.get_gps_data()
             # Calculate the distance between the current location and the destination
             self.calculated_distance = self.distance(self.initial_location,(self.lat, self.lon))
             return self.calculated_distance
